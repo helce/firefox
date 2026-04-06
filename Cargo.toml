@@ -278,3 +278,13 @@ sync15 = { git = "https://github.com/mozilla/application-services", rev = "f5907
 tabs = { git = "https://github.com/mozilla/application-services", rev = "f5907a411e52a3985d0369d71c486eb507c2c4e6" }
 viaduct = { git = "https://github.com/mozilla/application-services", rev = "f5907a411e52a3985d0369d71c486eb507c2c4e6" }
 webext-storage = { git = "https://github.com/mozilla/application-services", rev = "f5907a411e52a3985d0369d71c486eb507c2c4e6" }
+
+# e2k ports
+authenticator = { git = 'https://github.com/helce/authenticator-rs', tag = 'v0.4.1' }
+#bindgen = { git = 'https://github.com/helce/rust-bindgen', tag = 'v0.69.4' }
+cc = { git = 'https://github.com/helce/cc-rs', tag = 'cc-v1.2.12' }
+ioctl-sys = { git = 'https://github.com/helce/ioctl', tag = 'ioctl-sys-0.7.1' }
+libc = { git = 'https://github.com/helce/libc', tag = '0.2.171' }
+linux-raw-sys = { git = 'https://github.com/helce/linux-raw-sys', tag = 'v0.4.14' }
+object = { git = 'https://github.com/helce/object', tag = '0.36.4' }
+rustix = { git = 'https://github.com/helce/rustix', tag = '0.38.39' }
