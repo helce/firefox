@@ -113,6 +113,17 @@ impl Tool {
                 }
         }
 
+        fn is_mcst_lcc(path: &Path, cargo_output: &CargoOutput) -> bool {
+            run_output(
+                Command::new(path).arg("--version"),
+                path,
+                // tool detection issues should always be shown as warnings
+                cargo_output,
+            )
+            .map(|o| String::from_utf8_lossy(&o).starts_with("lcc:"))
+            .unwrap_or_default()
+        }
+
         fn guess_family_from_stdout(
             stdout: &str,
             path: &Path,
@@ -137,7 +148,8 @@ impl Tool {
             .is_ok();
 
             let clang = stdout.contains(r#""clang""#);
-            let gcc = stdout.contains(r#""gcc""#);
+            let mcst_lcc = is_mcst_lcc(path, cargo_output);
+            let gcc = stdout.contains(r#""gcc""#) || mcst_lcc;
             let emscripten = stdout.contains(r#""emscripten""#);
             let vxworks = stdout.contains(r#""VxWorks""#);
 
@@ -146,7 +158,9 @@ impl Tool {
                 (true, _, _, _, false) | (_, _, _, true, false) => Ok(ToolFamily::Clang {
                     zig_cc: is_zig_cc(path, cargo_output),
                 }),
-                (false, false, true, _, false) | (_, _, _, _, true) => Ok(ToolFamily::Gnu),
+                (false, false, true, _, false) | (_, _, _, _, true) => {
+                    Ok(ToolFamily::Gnu { mcst_lcc })
+                }
                 (false, false, false, false, false) => {
                     cargo_output.print_warning(&"Compiler family detection failed since it does not define `__clang__`, `__GNUC__`, `__EMSCRIPTEN__` or `__VXWORKS__`, also does not accept cl style flag `-?`, fallback to treating it as GNU");
                     Err(Error::new(
@@ -261,7 +275,7 @@ impl Tool {
                     }
                 }
                 Some(fname) if fname.contains("zig") => ToolFamily::Clang { zig_cc: true },
-                _ => ToolFamily::Gnu,
+                _ => ToolFamily::gnu(),
             }
         });
 
@@ -422,7 +436,7 @@ impl Tool {
 
     /// Whether the tool is GNU Compiler Collection-like.
     pub fn is_like_gnu(&self) -> bool {
-        self.family == ToolFamily::Gnu
+        matches!(self.family, ToolFamily::Gnu { .. })
     }
 
     /// Whether the tool is Clang-like.
@@ -446,6 +460,11 @@ impl Tool {
         matches!(self.family, ToolFamily::Msvc { .. })
     }
 
+    /// Whether the tool is MCST-LCC-like.
+    pub fn is_like_mcst_lcc(&self) -> bool {
+        matches!(self.family, ToolFamily::Gnu { mcst_lcc: true })
+    }
+
     /// Whether the tool is `clang-cl`-based MSVC-like.
     pub fn is_like_clang_cl(&self) -> bool {
         matches!(self.family, ToolFamily::Msvc { clang_cl: true })
@@ -466,7 +485,7 @@ impl Tool {
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub enum ToolFamily {
     /// Tool is GNU Compiler Collection-like.
-    Gnu,
+    Gnu { mcst_lcc: bool },
     /// Tool is Clang-like. It differs from the GCC in a sense that it accepts superset of flags
     /// and its cross-compilation approach is different.
     Clang { zig_cc: bool },
@@ -475,13 +494,21 @@ pub enum ToolFamily {
 }
 
 impl ToolFamily {
+    pub(crate) fn gnu() -> ToolFamily {
+        ToolFamily::Gnu { mcst_lcc: false }
+    }
+
+    pub(crate) fn is_gnu(&self) -> bool {
+        matches!(self, ToolFamily::Gnu { .. })
+    }
+
     /// What the flag to request debug info for this family of tools look like
     pub(crate) fn add_debug_flags(&self, cmd: &mut Tool, dwarf_version: Option<u32>) {
         match *self {
             ToolFamily::Msvc { .. } => {
                 cmd.push_cc_arg("-Z7".into());
             }
-            ToolFamily::Gnu | ToolFamily::Clang { .. } => {
+            ToolFamily::Gnu { .. } | ToolFamily::Clang { .. } => {
                 cmd.push_cc_arg(
                     dwarf_version
                         .map_or_else(|| "-g".into(), |v| format!("-gdwarf-{}", v))
@@ -494,7 +521,7 @@ impl ToolFamily {
     /// What the flag to force frame pointers.
     pub(crate) fn add_force_frame_pointer(&self, cmd: &mut Tool) {
         match *self {
-            ToolFamily::Gnu | ToolFamily::Clang { .. } => {
+            ToolFamily::Gnu { .. } | ToolFamily::Clang { .. } => {
                 cmd.push_cc_arg("-fno-omit-frame-pointer".into());
             }
             _ => (),
@@ -505,7 +532,7 @@ impl ToolFamily {
     pub(crate) fn warnings_flags(&self) -> &'static str {
         match *self {
             ToolFamily::Msvc { .. } => "-W4",
-            ToolFamily::Gnu | ToolFamily::Clang { .. } => "-Wall",
+            ToolFamily::Gnu { .. } | ToolFamily::Clang { .. } => "-Wall",
         }
     }
 
@@ -513,7 +540,7 @@ impl ToolFamily {
     pub(crate) fn extra_warnings_flags(&self) -> Option<&'static str> {
         match *self {
             ToolFamily::Msvc { .. } => None,
-            ToolFamily::Gnu | ToolFamily::Clang { .. } => Some("-Wextra"),
+            ToolFamily::Gnu { .. } | ToolFamily::Clang { .. } => Some("-Wextra"),
         }
     }
 
@@ -521,7 +548,7 @@ impl ToolFamily {
     pub(crate) fn warnings_to_errors_flag(&self) -> &'static str {
         match *self {
             ToolFamily::Msvc { .. } => "-WX",
-            ToolFamily::Gnu | ToolFamily::Clang { .. } => "-Werror",
+            ToolFamily::Gnu { .. } | ToolFamily::Clang { .. } => "-Werror",
         }
     }
 

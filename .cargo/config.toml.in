@@ -55,6 +55,46 @@ git = "https://github.com/glandium/rust-objc"
 rev = "4de89f5aa9851ceca4d40e7ac1e2759410c04324"
 replace-with = "vendored-sources"
 
+[source."git+https://github.com/helce/authenticator-rs?tag=v0.4.1"]
+git = "https://github.com/helce/authenticator-rs"
+tag = "v0.4.1"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/helce/cc-rs?tag=cc-v1.2.12"]
+git = "https://github.com/helce/cc-rs"
+tag = "cc-v1.2.12"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/helce/ioctl?tag=ioctl-sys-0.7.1"]
+git = "https://github.com/helce/ioctl"
+tag = "ioctl-sys-0.7.1"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/helce/libc?tag=0.2.171"]
+git = "https://github.com/helce/libc"
+tag = "0.2.171"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/helce/linux-raw-sys?tag=v0.4.14"]
+git = "https://github.com/helce/linux-raw-sys"
+tag = "v0.4.14"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/helce/object?tag=0.36.4"]
+git = "https://github.com/helce/object"
+tag = "0.36.4"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/helce/rust-bindgen?tag=v0.69.4"]
+git = "https://github.com/helce/rust-bindgen"
+tag = "v0.69.4"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/helce/rustix?tag=0.38.39"]
+git = "https://github.com/helce/rustix"
+tag = "0.38.39"
+replace-with = "vendored-sources"
+
 [source."git+https://github.com/hsivonen/any_all_workaround?rev=7fb1b7034c9f172aade21ee1c8554e8d8a48af80"]
 git = "https://github.com/hsivonen/any_all_workaround"
 rev = "7fb1b7034c9f172aade21ee1c8554e8d8a48af80"

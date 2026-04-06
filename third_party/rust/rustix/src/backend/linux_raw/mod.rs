@@ -18,7 +18,10 @@
 mod arch;
 mod conv;
 mod reg;
-#[cfg(any(feature = "time", feature = "process", target_arch = "x86"))]
+#[cfg(all(
+    any(feature = "time", feature = "process", target_arch = "x86"),
+    not(target_arch = "e2k")
+))]
 mod vdso;
 #[cfg(any(feature = "time", feature = "process", target_arch = "x86"))]
 mod vdso_wrappers;

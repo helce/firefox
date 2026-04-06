@@ -1130,6 +1130,7 @@ s! {
             target_arch = "aarch64",
             target_arch = "riscv64",
             target_arch = "riscv32",
+            target_arch = "e2k",
             target_arch = "loongarch64"
         ),
         repr(align(4))
@@ -1146,6 +1147,7 @@ s! {
             target_arch = "aarch64",
             target_arch = "riscv64",
             target_arch = "riscv32",
+            target_arch = "e2k",
             target_arch = "loongarch64"
         )),
         repr(align(8))
@@ -2685,6 +2687,7 @@ pub const EM_PJ: u16 = 91;
 pub const EM_OPENRISC: u16 = 92;
 pub const EM_ARC_A5: u16 = 93;
 pub const EM_XTENSA: u16 = 94;
+pub const EM_MCST_ELBRUS: u16 = 175;
 pub const EM_AARCH64: u16 = 183;
 pub const EM_TILEPRO: u16 = 188;
 pub const EM_TILEGX: u16 = 191;
@@ -4786,7 +4789,10 @@ pub const MAP_SHARED_VALIDATE: c_int = 0x3;
 pub const MAP_DROPPABLE: c_int = 0x8;
 
 // include/uapi/asm-generic/mman-common.h
+#[cfg(not(target_arch = "e2k"))]
 pub const MAP_FIXED_NOREPLACE: c_int = 0x100000;
+#[cfg(target_arch = "e2k")]
+pub const MAP_FIXED_NOREPLACE: c_int = 0x400000;
 pub const MLOCK_ONFAULT: c_uint = 0x01;
 
 // uapi/linux/vm_sockets.h

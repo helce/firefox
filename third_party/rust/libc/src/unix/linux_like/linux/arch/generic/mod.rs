@@ -166,6 +166,7 @@ cfg_if! {
         target_arch = "aarch64",
         target_arch = "riscv64",
         target_arch = "s390x",
+        target_arch = "e2k",
         target_arch = "csky",
         target_arch = "loongarch64"
     ))] {
@@ -321,6 +322,7 @@ cfg_if! {
         target_arch = "riscv64",
         target_arch = "aarch64",
         target_arch = "s390x",
+        target_arch = "e2k",
         target_arch = "loongarch64",
         target_arch = "wasm32"
     ))] {
@@ -419,6 +421,16 @@ cfg_if! {
     } else if #[cfg(target_env = "uclibc")] {
         #[deprecated(since = "0.2.64", note = "Not stable across OS versions")]
         pub const RLIM_NLIMITS: crate::__rlimit_resource_t = 15;
+    }
+}
+
+cfg_if! {
+    if #[cfg(target_arch = "e2k")] {
+        pub const RLIMIT_ARCH_NUM: crate::__rlimit_resource_t = 10001;
+        pub const RLIMIT_P_STACK: crate::__rlimit_resource_t = 10001;
+        pub const RLIMIT_PC_STACK: crate::__rlimit_resource_t = 10002;
+        pub const RLIMIT_NLIMITS_EXT: crate::__rlimit_resource_t = 2;
+        pub const RLIM_NLIMITS_EXT: crate::__rlimit_resource_t = 2;
     }
 }
 

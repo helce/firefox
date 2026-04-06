@@ -1333,7 +1333,7 @@ impl Build {
         let mut cmd = compiler.to_command();
         let is_arm = matches!(target.arch, "aarch64" | "arm");
         let clang = compiler.is_like_clang();
-        let gnu = compiler.family == ToolFamily::Gnu;
+        let gnu = compiler.family.is_gnu();
         command_add_output_file(
             &mut cmd,
             &obj,
@@ -1758,7 +1758,7 @@ impl Build {
         let msvc = target.env == "msvc";
         let compiler = self.try_get_compiler()?;
         let clang = compiler.is_like_clang();
-        let gnu = compiler.family == ToolFamily::Gnu;
+        let gnu = compiler.family.is_gnu();
 
         let is_assembler_msvc = msvc && asm_ext == Some(AsmFileExt::DotAsm);
         let (mut cmd, name) = if is_assembler_msvc {
@@ -1924,7 +1924,7 @@ impl Build {
         if let Some(ref std) = self.std {
             let separator = match cmd.family {
                 ToolFamily::Msvc { .. } => ':',
-                ToolFamily::Gnu | ToolFamily::Clang { .. } => '=',
+                ToolFamily::Gnu { .. } | ToolFamily::Clang { .. } => '=',
             };
             cmd.push_cc_arg(format!("-std{}{}", separator, std).into());
         }
@@ -2039,7 +2039,7 @@ impl Build {
                     _ => {}
                 }
             }
-            ToolFamily::Gnu | ToolFamily::Clang { .. } => {
+            ToolFamily::Gnu { .. } | ToolFamily::Clang { .. } => {
                 // arm-linux-androideabi-gcc 4.8 shipped with Android NDK does
                 // not support '-Oz'
                 if opt_level == "z" && !cmd.is_like_clang() {
@@ -2137,7 +2137,7 @@ impl Build {
                 cmd.args.push("-G".into());
             }
             let family = cmd.family;
-            family.add_debug_flags(cmd, self.get_dwarf_version());
+            family.add_debug_flags(cmd, self.get_dwarf_version(cmd.family));
         }
 
         if self.get_force_frame_pointer() {
@@ -2151,7 +2151,7 @@ impl Build {
             } else if target.abi == "x32" {
                 cmd.args.push("-mx32".into());
             } else if target.os == "aix" {
-                if cmd.family == ToolFamily::Gnu {
+                if cmd.family.is_gnu() {
                     cmd.args.push("-maix64".into());
                 } else {
                     cmd.args.push("-m64".into());
@@ -2209,6 +2209,35 @@ impl Build {
                     if target.vendor != "apple" {
                         cmd.push_cc_arg(format!("--target={}", target.llvm_target).into());
                     }
+
+                    // Set -march or -mtune for e2k targets.
+                    if target.full_arch == "e2kv3" {
+                        cmd.args.push("-march=elbrus-v3".into());
+                    } else if target.full_arch == "e2kv4" {
+                        cmd.args.push("-march=elbrus-v4".into());
+                    } else if target.full_arch == "e2kv5" {
+                        cmd.args.push("-march=elbrus-v5".into());
+                    } else if target.full_arch == "e2kv6" {
+                        cmd.args.push("-march=elbrus-v6".into());
+                    } else if target.full_arch == "e2k4c" {
+                        cmd.args.push("-mtune=elbrus-4c".into());
+                    } else if target.full_arch == "e2k8c" {
+                        cmd.args.push("-mtune=elbrus-8c".into());
+                    } else if target.full_arch == "e2k1cplus" {
+                        cmd.args.push("-mtune=elbrus-1c+".into());
+                    } else if target.full_arch == "e2k8c2" {
+                        cmd.args.push("-mtune=elbrus-8c2".into());
+                    } else if target.full_arch == "e2k12c" {
+                        cmd.args.push("-mtune=elbrus-12c".into());
+                    } else if target.full_arch == "e2k16c" {
+                        cmd.args.push("-mtune=elbrus-16c".into());
+                    } else if target.full_arch == "e2k2c3" {
+                        cmd.args.push("-mtune=elbrus-2c3".into());
+                    } else if target.full_arch == "e2k48c" {
+                        cmd.args.push("-mtune=elbrus-48c".into());
+                    } else if target.full_arch == "e2k8v7" {
+                        cmd.args.push("-mtune=elbrus-8v7".into());
+                    }
                 }
             }
             ToolFamily::Msvc { clang_cl } => {
@@ -2245,7 +2274,7 @@ impl Build {
                         .push("-D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1".into());
                 }
             }
-            ToolFamily::Gnu => {
+            ToolFamily::Gnu { .. } => {
                 if target.vendor == "kmc" {
                     cmd.args.push("-finput-charset=utf-8".into());
                 }
@@ -2428,7 +2457,8 @@ impl Build {
         if self.cpp {
             match (self.cpp_set_stdlib.as_ref(), cmd.family) {
                 (None, _) => {}
-                (Some(stdlib), ToolFamily::Gnu) | (Some(stdlib), ToolFamily::Clang { .. }) => {
+                (Some(stdlib), ToolFamily::Gnu { .. })
+                | (Some(stdlib), ToolFamily::Clang { .. }) => {
                     cmd.push_cc_arg(format!("-stdlib=lib{}", stdlib).into());
                 }
                 _ => {
@@ -2955,7 +2985,7 @@ impl Build {
             }
         }
 
-        if target.env == "msvc" && tool.family == ToolFamily::Gnu {
+        if target.env == "msvc" && tool.family.is_gnu() {
             self.cargo_output
                 .print_warning(&"GNU compiler is not supported for this target");
         }
@@ -3552,7 +3582,7 @@ impl Build {
             .unwrap_or_else(|| self.getenv_boolean("CC_SHELL_ESCAPED_FLAGS"))
     }
 
-    fn get_dwarf_version(&self) -> Option<u32> {
+    fn get_dwarf_version(&self, family: ToolFamily) -> Option<u32> {
         // Tentatively matches the DWARF version defaults as of rustc 1.62.
         let target = self.get_target().ok()?;
         if matches!(
@@ -3560,6 +3590,7 @@ impl Build {
             "android" | "dragonfly" | "freebsd" | "netbsd" | "openbsd"
         ) || target.vendor == "apple"
             || (target.os == "windows" && target.env == "gnu")
+            || (target.arch == "e2k" && family.is_gnu())
         {
             Some(2)
         } else if target.os == "linux" {

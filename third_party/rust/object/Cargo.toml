@@ -24,6 +24,7 @@ include = [
     "/src",
     "/tests",
 ]
+autolib = false
 autobins = false
 autoexamples = false
 autotests = false
@@ -39,69 +40,9 @@ keywords = [
 ]
 license = "Apache-2.0 OR MIT"
 repository = "https://github.com/gimli-rs/object"
-resolver = "2"
 
 [package.metadata.docs.rs]
 features = ["doc"]
-
-[lib]
-name = "object"
-path = "src/lib.rs"
-
-[[test]]
-name = "integration"
-path = "tests/integration.rs"
-
-[[test]]
-name = "parse_self"
-path = "tests/parse_self.rs"
-
-[dependencies.alloc]
-version = "1.0.0"
-optional = true
-package = "rustc-std-workspace-alloc"
-
-[dependencies.compiler_builtins]
-version = "0.1.2"
-optional = true
-
-[dependencies.core]
-version = "1.0.0"
-optional = true
-package = "rustc-std-workspace-core"
-
-[dependencies.crc32fast]
-version = "1.2"
-optional = true
-default-features = false
-
-[dependencies.flate2]
-version = "1"
-optional = true
-
-[dependencies.hashbrown]
-version = "0.14.0"
-features = ["ahash"]
-optional = true
-default-features = false
-
-[dependencies.indexmap]
-version = "2.0"
-optional = true
-default-features = false
-
-[dependencies.memchr]
-version = "2.4.1"
-default-features = false
-
-[dependencies.ruzstd]
-version = "0.7.0"
-optional = true
-
-[dependencies.wasmparser]
-version = "0.216.0"
-optional = true
-default-features = false
 
 [features]
 all = [
@@ -195,3 +136,70 @@ write_std = [
     "crc32fast?/std",
 ]
 xcoff = []
+
+[lib]
+name = "object"
+path = "src/lib.rs"
+
+[[test]]
+name = "integration"
+path = "tests/integration.rs"
+
+[[test]]
+name = "parse_self"
+path = "tests/parse_self.rs"
+
+[dependencies.alloc]
+version = "1.0.0"
+optional = true
+package = "rustc-std-workspace-alloc"
+
+[dependencies.compiler_builtins]
+version = "0.1.2"
+optional = true
+
+[dependencies.core]
+version = "1.0.0"
+optional = true
+package = "rustc-std-workspace-core"
+
+[dependencies.crc32fast]
+version = "1.2"
+optional = true
+default-features = false
+
+[dependencies.flate2]
+version = "1"
+optional = true
+
+[dependencies.hashbrown]
+version = "0.14.0"
+features = ["ahash"]
+optional = true
+default-features = false
+
+[dependencies.indexmap]
+version = "2.0"
+optional = true
+default-features = false
+
+[dependencies.memchr]
+version = "2.4.1"
+default-features = false
+
+[dependencies.ruzstd]
+version = "0.7.0"
+optional = true
+
+[dependencies.wasmparser]
+version = "0.216.0"
+optional = true
+default-features = false
+
+[workspace]
+members = ["crates/*"]
+default-members = [
+    ".",
+    "crates/examples",
+]
+resolver = "2"

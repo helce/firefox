@@ -51,7 +51,8 @@ const DIR_MASK: RawOpcode = (1 << DIR_BITS) - 1;
     target_arch = "riscv32",
     target_arch = "riscv64",
     target_arch = "loongarch64",
-    target_arch = "csky"
+    target_arch = "csky",
+    target_arch = "e2k"
 ))]
 mod consts {
     use super::RawOpcode;

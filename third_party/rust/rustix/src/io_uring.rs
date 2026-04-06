@@ -66,6 +66,7 @@ pub use net::{__kernel_sockaddr_storage as sockaddr_storage, msghdr, sockaddr, s
 pub type c_char = u8;
 /// The C `char` type.
 #[cfg(any(
+    target_arch = "e2k",
     target_arch = "mips",
     target_arch = "mips64",
     target_arch = "sparc64",

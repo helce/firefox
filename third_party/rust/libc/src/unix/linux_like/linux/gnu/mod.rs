@@ -519,6 +519,7 @@ s_no_extra_traits! {
         #[cfg(any(
             target_arch = "aarch64",
             target_arch = "s390x",
+            target_arch = "e2k",
             target_arch = "loongarch64",
             all(target_pointer_width = "32", not(target_arch = "x86_64"))
         ))]
@@ -526,6 +527,7 @@ s_no_extra_traits! {
         #[cfg(any(
             target_arch = "aarch64",
             target_arch = "s390x",
+            target_arch = "e2k",
             target_arch = "loongarch64",
             all(target_pointer_width = "32", not(target_arch = "x86_64"))
         ))]
@@ -534,6 +536,7 @@ s_no_extra_traits! {
         #[cfg(not(any(
             target_arch = "aarch64",
             target_arch = "s390x",
+            target_arch = "e2k",
             target_arch = "loongarch64",
             all(target_pointer_width = "32", not(target_arch = "x86_64"))
         )))]
@@ -541,6 +544,7 @@ s_no_extra_traits! {
         #[cfg(not(any(
             target_arch = "aarch64",
             target_arch = "s390x",
+            target_arch = "e2k",
             target_arch = "loongarch64",
             all(target_pointer_width = "32", not(target_arch = "x86_64"))
         )))]
@@ -1111,7 +1115,8 @@ cfg_if! {
         target_arch = "x86_64",
         target_arch = "s390x",
         target_arch = "riscv64",
-        target_arch = "riscv32"
+        target_arch = "riscv32",
+        target_arch = "e2k"
     ))] {
         pub const PTHREAD_STACK_MIN: size_t = 16384;
     } else if #[cfg(any(target_arch = "sparc", target_arch = "sparc64"))] {
@@ -1136,7 +1141,8 @@ cfg_if! {
         target_arch = "aarch64",
         target_arch = "loongarch64",
         target_arch = "riscv64",
-        target_arch = "s390x"
+        target_arch = "s390x",
+        target_arch = "e2k"
     ))] {
         pub const TUNSETCARRIER: Ioctl = 0x400454e2;
         pub const TUNGETDEVNETNS: Ioctl = 0x54e3;
@@ -1456,6 +1462,7 @@ cfg_if! {
         target_arch = "s390x",
         target_arch = "sparc64",
         target_arch = "riscv64",
+        target_arch = "e2k",
         target_arch = "loongarch64"
     ))] {
         mod b64;

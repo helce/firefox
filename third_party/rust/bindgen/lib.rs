@@ -713,6 +713,8 @@ fn rust_to_clang_target(rust_target: &str) -> Box<str> {
         clang_target
             .push_str(rust_target.strip_prefix("riscv32imac-").unwrap());
         return clang_target.into();
+    } else if rust_target.starts_with("e2k") {
+        return "e2k-unknown-linux-gnu".into();
     }
     rust_target.into()
 }

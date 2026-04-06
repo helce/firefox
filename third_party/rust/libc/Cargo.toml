@@ -80,6 +80,20 @@ targets = [
     "armv7-wrs-vxworks-eabihf",
     "armv7r-none-eabi",
     "armv7r-none-eabihf",
+    "e2k-unknown-linux-gnu",
+    "e2kv3-unknown-linux-gnu",
+    "e2kv4-unknown-linux-gnu",
+    "e2kv5-unknown-linux-gnu",
+    "e2kv6-unknown-linux-gnu",
+    "e2kv7-unknown-linux-gnu",
+    "e2k4c-unknown-linux-gnu",
+    "e2k8c-unknown-linux-gnu",
+    "e2k1cplus-unknown-linux-gnu",
+    "e2k8c2-unknown-linux-gnu",
+    "e2k12c-unknown-linux-gnu",
+    "e2k16c-unknown-linux-gnu",
+    "e2k2c3-unknown-linux-gnu",
+    "e2k48c-unknown-linux-gnu",
     "i586-unknown-linux-gnu",
     "i586-unknown-linux-musl",
     "i686-linux-android",
@@ -184,3 +198,6 @@ path = "tests/const_fn.rs"
 [dependencies.rustc-std-workspace-core]
 version = "1.0.0"
 optional = true
+
+[workspace]
+members = ["libc-test"]

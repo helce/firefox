@@ -21,10 +21,15 @@ authors = [
     "The Servo project developers",
 ]
 build = "build.rs"
+autolib = false
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
 description = "Automatically generates Rust FFI bindings to C and C++ libraries."
 homepage = "https://rust-lang.github.io/rust-bindgen/"
 documentation = "https://docs.rs/bindgen"
-readme = "README.md"
+readme = "../README.md"
 keywords = [
     "bindings",
     "ffi",
@@ -60,20 +65,39 @@ replace = """
 # {{version}} ({{date}})"""
 search = "# Unreleased"
 
+[features]
+__cli = []
+__testing_only_extra_assertions = []
+__testing_only_libclang_16 = []
+__testing_only_libclang_9 = []
+default = [
+    "logging",
+    "prettyplease",
+    "runtime",
+    "which-rustfmt",
+]
+experimental = ["dep:annotate-snippets"]
+logging = ["dep:log"]
+runtime = ["clang-sys/runtime"]
+static = ["clang-sys/static"]
+which-rustfmt = ["dep:which"]
+
 [lib]
 name = "bindgen"
 path = "lib.rs"
+
+[dependencies]
+bitflags = "2.2.1"
+cexpr = "0.6"
+lazy_static = "1"
+lazycell = "1"
+rustc-hash = "1.0.1"
+shlex = "1"
 
 [dependencies.annotate-snippets]
 version = "0.9.1"
 features = ["color"]
 optional = true
-
-[dependencies.bitflags]
-version = "2.2.1"
-
-[dependencies.cexpr]
-version = "0.6"
 
 [dependencies.clang-sys]
 version = "1"
@@ -82,12 +106,6 @@ features = ["clang_6_0"]
 [dependencies.itertools]
 version = ">=0.10,<0.13"
 default-features = false
-
-[dependencies.lazy_static]
-version = "1"
-
-[dependencies.lazycell]
-version = "1"
 
 [dependencies.log]
 version = "0.4"
@@ -114,12 +132,6 @@ features = [
 ]
 default-features = false
 
-[dependencies.rustc-hash]
-version = "1.0.1"
-
-[dependencies.shlex]
-version = "1"
-
 [dependencies.syn]
 version = "2.0"
 features = [
@@ -132,20 +144,3 @@ features = [
 version = "4.2.1"
 optional = true
 default-features = false
-
-[features]
-__cli = []
-__testing_only_extra_assertions = []
-__testing_only_libclang_16 = []
-__testing_only_libclang_9 = []
-default = [
-    "logging",
-    "prettyplease",
-    "runtime",
-    "which-rustfmt",
-]
-experimental = ["dep:annotate-snippets"]
-logging = ["dep:log"]
-runtime = ["clang-sys/runtime"]
-static = ["clang-sys/static"]
-which-rustfmt = ["dep:which"]
