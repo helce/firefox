@@ -334,8 +334,7 @@ dependencies = [
 [[package]]
 name = "authenticator"
 version = "0.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "82d71e457dc518a15eecc90d3b0660dee4b51623b34ac4262c9326e0d7e0f8e2"
+source = "git+https://github.com/helce/authenticator-rs?tag=v0.4.1#4179eb59e0b5273b1e5df8d28b971f42e5c0032a"
 dependencies = [
  "base64 0.21.999",
  "bitflags 1.999.999",
@@ -462,6 +461,7 @@ dependencies = [
 [[package]]
 name = "bindgen"
 version = "0.69.4"
+source = "git+https://github.com/helce/rust-bindgen?tag=v0.69.4#31cb91ee7583cb1c20c63962cb3b3ee50d91cc60"
 dependencies = [
  "bitflags 2.9.0",
  "cexpr",
@@ -747,8 +747,7 @@ dependencies = [
 [[package]]
 name = "cc"
 version = "1.2.12"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "755717a7de9ec452bf7f3f1a3099085deabd7f2962b861dae91ecd7a365903d2"
+source = "git+https://github.com/helce/cc-rs?tag=cc-v1.2.12#efe0ba243441399e6c1424a9fe8df8a0cb93f3c3"
 dependencies = [
  "jobserver",
  "libc",
@@ -3429,8 +3428,7 @@ dependencies = [
 [[package]]
 name = "ioctl-sys"
 version = "0.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7f9d0b6b23885487578d10590edc36fd95426257c7017973b20633e34df23b08"
+source = "git+https://github.com/helce/ioctl?tag=ioctl-sys-0.7.1#bb3b073324df7cb43c68a9a155db4803a950d940"
 
 [[package]]
 name = "iovec"
@@ -3695,8 +3693,7 @@ checksum = "884e2677b40cc8c339eaefcb701c32ef1fd2493d71118dc0ca4b6a736c93bd67"
 [[package]]
 name = "libc"
 version = "0.2.171"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c19937216e9d3aa9956d9bb8dfc0b0c8beb6058fc4f7a4dc4d850edf86a237d6"
+source = "git+https://github.com/helce/libc?tag=0.2.171#86fc571e6b92773a8b3a06373d1a9e9d460a5aa8"
 
 [[package]]
 name = "libdbus-sys"
@@ -3779,8 +3776,7 @@ checksum = "0717cef1bc8b636c6e1c1bbdefc09e6322da8a9321966e8928ef80d20f7f770f"
 [[package]]
 name = "linux-raw-sys"
 version = "0.4.14"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "78b3ae25bc7c8c38cec158d1f2757ee79e9b3740fbc7ccf0e59e4b08d793fa89"
+source = "git+https://github.com/helce/linux-raw-sys?tag=v0.4.14#fee91e663a1d406573b4a4e42a7de0589d7e8d29"
 
 [[package]]
 name = "litemap"
@@ -4975,8 +4971,7 @@ dependencies = [
 [[package]]
 name = "object"
 version = "0.36.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "084f1a5821ac4c651660a94a7153d27ac9d8a53736203f58b31945ded098070a"
+source = "git+https://github.com/helce/object?tag=0.36.4#c9731fa5ddb8d1b73c65f4a91f2433134634c172"
 dependencies = [
  "memchr",
 ]
@@ -5877,8 +5872,7 @@ dependencies = [
 [[package]]
 name = "rustix"
 version = "0.38.39"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "375116bee2be9ed569afe2154ea6a99dfdffd257f533f187498c2a8f5feaf4ee"
+source = "git+https://github.com/helce/rustix?tag=0.38.39#861c4a21e4df81d5b6b88afce71bcb92ca0f7a5c"
 dependencies = [
  "bitflags 2.9.0",
  "errno",
