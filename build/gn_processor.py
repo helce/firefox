@@ -182,6 +182,7 @@ def filter_gn_config(path, gn_result, sandbox_vars, input_vars, gn_target):
         "mipsel": "mips32",
         "mips64el": "mips64",
         "loong64": "loongarch64",
+        "e2k": "e2k",
     }
     oses = {
         "android": "Android",
@@ -811,7 +812,7 @@ def main():
             if target_os in ("linux", "openbsd"):
                 target_cpus.append("riscv64")
             if target_os == "linux":
-                target_cpus.extend(["loong64", "ppc64", "mipsel", "mips64el"])
+                target_cpus.extend(["loong64", "ppc64", "mipsel", "mips64el", "e2k"])
             for target_cpu in target_cpus:
                 vars = {
                     "host_cpu": "x64",

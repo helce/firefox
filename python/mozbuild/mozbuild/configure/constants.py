@@ -65,6 +65,7 @@ CPU_bitness = {
     "aarch64": 64,
     "Alpha": 64,
     "arm": 32,
+    "e2k": 64,
     "hppa": 32,
     "ia64": 64,
     "loongarch64": 64,
@@ -133,6 +134,7 @@ CPU_preprocessor_checks = OrderedDict(
         ("loongarch64", "__loongarch64"),
         ("sh4", "__sh__"),
         ("wasm32", "__wasm32__"),
+        ("e2k", "__e2k__"),
     )
 )
 

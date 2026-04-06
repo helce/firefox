@@ -11,7 +11,7 @@
 #include "xptcall.h"
 #include "mozilla/Attributes.h"
 
-#if !defined(__ia64) || \
+#if !defined(__ia64) && !defined(__e2k__) || \
     (!defined(__hpux) && !defined(__linux__) && !defined(__FreeBSD__))
 #  define STUB_ENTRY(n) NS_IMETHOD Stub##n() = 0;
 #else
@@ -30,7 +30,7 @@ class nsIXPTCStubBase : public nsISupports {
 #undef STUB_ENTRY
 #undef SENTINEL_ENTRY
 
-#if !defined(__ia64) || \
+#if !defined(__ia64) && !defined(__e2k__) || \
     (!defined(__hpux) && !defined(__linux__) && !defined(__FreeBSD__))
 #  define STUB_ENTRY(n) NS_IMETHOD Stub##n() override;
 #else
