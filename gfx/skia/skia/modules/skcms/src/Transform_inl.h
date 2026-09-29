@@ -151,7 +151,8 @@ SI F F_from_Half(U16 half) {
 #elif defined(USING_AVX512F)
     return (F)_mm512_cvtph_ps((__m256i)half);
 #elif defined(USING_AVX_F16C)
-#if defined(__clang__) && __clang_major__ >= 15 // for _Float16 support
+#if !defined(__e2k__) && \
+    (defined(__clang__) && __clang_major__ >= 15) // for _Float16 support
     typedef _Float16 __attribute__((vector_size(16))) F16;
     return __builtin_convertvector((F16)half, F);
 #else

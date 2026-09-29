@@ -47,7 +47,7 @@ if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
 
 # We should autogenerate these SSE related flags.
 
-if CONFIG['INTEL_ARCHITECTURE']:
+if CONFIG['INTEL_ARCHITECTURE'] or CONFIG['ELBRUS_ARCHITECTURE']:
     SOURCES['skia/modules/skcms/skcms.cc'].flags += ['-DSKCMS_DISABLE_SKX']
     skia_ssse3_flags = ['-Dskvx=skvx_ssse3', '-mssse3']
     skia_avx_flags = ['-Dskvx=skvx_avx', '-mavx']
@@ -435,7 +435,7 @@ def write_mozbuild(sources):
   f.write("if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':\n")
   write_list(f, "SOURCES", sources['win'], 4)
 
-  f.write("if CONFIG['INTEL_ARCHITECTURE']:\n")
+  f.write("if CONFIG['INTEL_ARCHITECTURE'] or CONFIG['ELBRUS_ARCHITECTURE']:\n")
   write_sources(f, sources['intel'], 4)
   write_cflags(f, sources['intel'], opt_allowlist, 'skia_opt_flags', 4)
 

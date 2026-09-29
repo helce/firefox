@@ -568,6 +568,17 @@
 #define XSIMD_WITH_VXE 0
 #endif
 
+/**
+ * @ingroup xsimd_config_macro
+ *
+ * Set to 1 if the target is in the Elbrus family, to 0 otherwise
+ */
+#if defined(__e2k__)
+#define XSIMD_TARGET_E2K 1
+#else
+#define XSIMD_TARGET_E2K 0
+#endif
+
 // Workaround for MSVC compiler
 #ifdef _MSC_VER
 

@@ -60,7 +60,7 @@ inline bool SkCpu::Supports(uint32_t mask) {
 
     // If we mask in compile-time known lower limits, the compiler can
     // often compile away this entire function.
-#if SK_CPU_X86
+#if SK_CPU_X86 || SK_CPU_E2K
     #if SK_CPU_X64_LEVEL >= SK_CPU_X64_LEVEL_SSE1
     features |= SkX64::SSE1;
     #endif

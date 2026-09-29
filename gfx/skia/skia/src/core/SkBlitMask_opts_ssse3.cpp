@@ -9,7 +9,7 @@
 #include "src/core/SkBlitMask.h"
 #include "src/core/SkOptsTargets.h"
 
-#if defined(SK_CPU_X86) && !defined(SK_ENABLE_OPTIMIZE_SIZE)
+#if (defined(SK_CPU_X86) || defined(SK_CPU_E2K)) && !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
 // The order of these includes is important:
 // 1) Select the target CPU architecture by defining SK_OPTS_TARGET and including SkOpts_SetTarget
@@ -29,4 +29,4 @@ namespace SkOpts {
     }
 }  // namespace SkOpts
 
-#endif // SK_CPU_X86 && !SK_ENABLE_OPTIMIZE_SIZE
+#endif // (defined(SK_CPU_X86) || defined(SK_CPU_E2K)) && !SK_ENABLE_OPTIMIZE_SIZE

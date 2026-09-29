@@ -32,7 +32,7 @@ elif CONFIG['TARGET_CPU'] == 'aarch64':
         'sharpyuv_neon.c',
     ]
     DEFINES['WEBP_HAVE_NEON'] = 1;
-elif CONFIG['INTEL_ARCHITECTURE']:
+elif CONFIG['INTEL_ARCHITECTURE'] or CONFIG['ELBRUS_ARCHITECTURE']:
     SOURCES += [
         'sharpyuv_sse2.c',
     ]

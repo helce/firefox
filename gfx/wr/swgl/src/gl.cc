@@ -2371,7 +2371,7 @@ static inline void fill_n(T* dst, size_t n, T val) {
   for (T* end = &dst[n]; dst < end; dst++) *dst = val;
 }
 
-#if USE_SSE2
+#if USE_SSE2 && !defined(__e2k__)
 template <>
 inline void fill_n<uint32_t>(uint32_t* dst, size_t n, uint32_t val) {
   __asm__ __volatile__("rep stosl\n"

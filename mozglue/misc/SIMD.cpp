@@ -447,7 +447,7 @@ const char* SIMD::memchr8SSE2(const char* ptr, char value, size_t length) {
 // assertion failure. Accordingly, we just don't allow that to happen. We
 // are not particularly concerned about ensuring that newer 32 bit processors
 // get access to the AVX2 functions exposed here.
-#  if defined(MOZILLA_MAY_SUPPORT_AVX2) && defined(__x86_64__)
+#  if defined(MOZILLA_MAY_SUPPORT_AVX2) && (defined(__x86_64__) || defined(__e2k__))
 
 bool SupportsAVX2() { return supports_avx2(); }
 

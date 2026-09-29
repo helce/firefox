@@ -99,7 +99,7 @@ UNIFIED_SOURCES += [
 # in htmlaccelNotInline.cpp should becomed always inlined and
 # nsHtml5TokenizerSIMD.cpp should be built with HTML_ACCEL_FLAGS.
 
-if (CONFIG["TARGET_CPU"] == "x86_64") and (
+if ((CONFIG["TARGET_CPU"] == "x86_64") or (CONFIG["TARGET_CPU"] == "e2k")) and (
     CONFIG["CC_TYPE"] != "gcc" or int(CONFIG["CC_VERSION"].split(".")[0]) >= 12
 ):
     UNIFIED_SOURCES += [

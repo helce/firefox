@@ -10,7 +10,7 @@
 #include "src/core/SkOptsTargets.h"
 #include "src/core/SkSwizzlePriv.h"
 
-#if defined(SK_CPU_X86) && \
+#if (defined(SK_CPU_X86) || defined(SK_CPU_E2K)) && \
     !defined(SK_ENABLE_OPTIMIZE_SIZE) && \
     SK_CPU_X64_LEVEL < SK_CPU_X64_LEVEL_AVX2
 
@@ -39,4 +39,4 @@ namespace SkOpts {
     }
 }  // namespace SkOpts
 
-#endif // SK_CPU_X86 && !SK_ENABLE_OPTIMIZE_SIZE
+#endif // (defined(SK_CPU_X86) || defined(SK_CPU_E2K)) && !SK_ENABLE_OPTIMIZE_SIZE

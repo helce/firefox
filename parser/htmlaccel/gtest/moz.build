@@ -3,7 +3,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 if (
-    CONFIG["TARGET_CPU"] == "x86_64"
+    CONFIG["TARGET_CPU"] == "x86_64" or CONFIG["TARGET_CPU"] == "e2k"
     or (CONFIG["TARGET_CPU"] == "aarch64" and CONFIG["TARGET_ENDIANNESS"] == "little")
 ) and (CONFIG["CC_TYPE"] != "gcc" or int(CONFIG["CC_VERSION"].split(".")[0]) >= 12):
     SOURCES += {

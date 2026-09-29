@@ -581,7 +581,7 @@ if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
         'skia/src/ports/SkScalerContext_win_dw.cpp',
         'skia/src/ports/SkTypeface_win_dw.cpp',
     ]
-if CONFIG['INTEL_ARCHITECTURE']:
+if CONFIG['INTEL_ARCHITECTURE'] or CONFIG['ELBRUS_ARCHITECTURE']:
     SOURCES += [
         'skia/modules/skcms/src/skcms_TransformHsw.cc',
         'skia/src/opts/SkOpts_ml3.cpp',
@@ -604,7 +604,7 @@ if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
 
 # We should autogenerate these SSE related flags.
 
-if CONFIG['INTEL_ARCHITECTURE']:
+if CONFIG['INTEL_ARCHITECTURE'] or CONFIG['ELBRUS_ARCHITECTURE']:
     SOURCES['skia/modules/skcms/skcms.cc'].flags += ['-DSKCMS_DISABLE_SKX']
     skia_ssse3_flags = ['-Dskvx=skvx_ssse3', '-mssse3']
     skia_avx_flags = ['-Dskvx=skvx_avx', '-mavx']

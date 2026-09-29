@@ -10,7 +10,7 @@
 // Restricting to x86_64 simplifies things, and we're not particularly
 // worried about slightly degraded performance on 32 bit processors which
 // support AVX2, as this should be quite a minority.
-#if defined(MOZILLA_MAY_SUPPORT_AVX2) && defined(__x86_64__)
+#if defined(MOZILLA_MAY_SUPPORT_AVX2) && (defined(__x86_64__) || defined(__e2k__))
 
 #  include <cstring>
 #  include <immintrin.h>

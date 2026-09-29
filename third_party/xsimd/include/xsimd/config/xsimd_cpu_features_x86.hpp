@@ -28,6 +28,11 @@
 #include <intrin.h> // Contains the definition of __cpuidex
 #endif
 
+#if XSIMD_TARGET_E2K
+#include <cpuid.h>
+#include <e2kbuiltin.h>
+#endif
+
 namespace xsimd
 {
     namespace detail
@@ -765,7 +770,7 @@ namespace xsimd
         constexpr x86_cpuid_leaf80000001 leaf80000001() const { return {}; }
     };
 
-#if XSIMD_TARGET_X86
+#if XSIMD_TARGET_X86 || XSIMD_TARGET_E2K
     using x86_cpu_features_backend_default = x86_cpu_features_backend_cpuid;
 #else
     using x86_cpu_features_backend_default = x86_cpu_features_backend_noop;
@@ -1043,12 +1048,12 @@ namespace xsimd
 
     namespace detail
     {
-#if XSIMD_TARGET_X86
+#if XSIMD_TARGET_X86 || XSIMD_TARGET_E2K
 
         inline cpuid_reg_t x86_cpuid(int leaf, int subleaf) noexcept
         {
             cpuid_reg_t reg = {};
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || XSIMD_TARGET_E2K
             int buf[4];
             __cpuidex(buf, leaf, subleaf);
             std::memcpy(reg.data(), buf, sizeof(buf));
@@ -1079,8 +1084,8 @@ namespace xsimd
 
         inline x86_reg32_t x86_xcr0_low() noexcept
         {
-#if defined(_MSC_VER)
-#if _MSC_VER >= 1400
+#if defined(_MSC_VER) || XSIMD_TARGET_E2K
+#if _MSC_VER >= 1400 || XSIMD_TARGET_E2K
             return static_cast<x86_reg32_t>(_xgetbv(0));
 #else
 #error "_MSC_VER < 1400 is not supported"

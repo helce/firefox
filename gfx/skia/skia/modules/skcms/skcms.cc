@@ -28,8 +28,10 @@
         #include <smmintrin.h>
         #include <avxintrin.h>
         #include <avx2intrin.h>
-        #include <avx512fintrin.h>
-        #include <avx512dqintrin.h>
+        #if !defined(__e2k__)
+            #include <avx512fintrin.h>
+            #include <avx512dqintrin.h>
+        #endif
     #endif
 #endif
 
@@ -2451,9 +2453,9 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
 enum class CpuType { Baseline, HSW, SKX };
 
 static CpuType cpu_type() {
-    #if defined(SKCMS_PORTABLE) || !defined(__x86_64__) || defined(SKCMS_FORCE_BASELINE)
+    #if defined(SKCMS_PORTABLE) || (!defined(__x86_64__) && !defined(__e2k__)) || defined(SKCMS_FORCE_BASELINE)
         return CpuType::Baseline;
-    #elif defined(SKCMS_FORCE_HSW)
+    #elif defined(SKCMS_FORCE_HSW) || defined(__e2k__)
         return CpuType::HSW;
     #elif defined(SKCMS_FORCE_SKX)
         return CpuType::SKX;

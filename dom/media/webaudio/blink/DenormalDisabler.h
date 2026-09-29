@@ -44,7 +44,7 @@ namespace WebCore {
 #  define HAVE_DENORMAL 1
 #endif
 
-#if defined(__GNUC__) && defined(__SSE__)
+#if defined(__GNUC__) && defined(__SSE__) && !defined(__e2k__)
 #  define HAVE_DENORMAL 1
 #endif
 

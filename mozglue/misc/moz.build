@@ -51,7 +51,7 @@ SOURCES += [
     "StackWalk.cpp",
 ]
 
-if CONFIG["TARGET_CPU"].startswith("x86"):
+if (CONFIG["TARGET_CPU"].startswith("x86") or CONFIG["TARGET_CPU"] == "e2k"):
     SOURCES += [
         "SIMD_avx2.cpp",
         "SSE.cpp",

@@ -1018,7 +1018,7 @@ namespace xsimd
                 __m256i tmp2 = _mm256_add_epi64(self, tmp1);
                 __m128i tmp3 = _mm256_extracti128_si256(tmp2, 1);
                 __m128i res = _mm_add_epi64(_mm256_castsi256_si128(tmp2), tmp3);
-#if defined(__x86_64__)
+#if defined(__x86_64__) || defined(__e2k__)
                 return _mm_cvtsi128_si64(res);
 #else
                 __m128i m;

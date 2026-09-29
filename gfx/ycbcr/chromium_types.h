@@ -42,6 +42,10 @@
 #define ARCH_CPU_AARCH64_FAMILY 1
 #define ARCH_CPU_AARCH64 1
 #define ARCH_CPU_64_BITS 1
+#elif defined(__e2k__)
+#define ARCH_CPU_E2K_FAMILY 1
+#define ARCH_CPU_E2K 1
+#define ARCH_CPU_64_BITS 1
 #else
 #warning Please add support for your architecture in chromium_types.h
 #endif

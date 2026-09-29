@@ -24,7 +24,7 @@
 #include "include/private/base/SkFeatures.h"
 #include "include/private/base/SkOnce.h"
 
-#if defined(SK_CPU_X86)
+#if (defined(SK_CPU_X86) || defined(SK_CPU_E2K))
     #if defined(_MSC_VER)
         #include <intrin.h>
     #else
@@ -35,7 +35,7 @@
 #endif
 
 namespace {
-#if defined(SK_CPU_X86)
+#if (defined(SK_CPU_X86) || defined(SK_CPU_E2K)) 
     // Vendor String https://www.sandpile.org/x86/cpuid.htm#leaf_0000_0000h
     constexpr uint32_t kVendorLeaf = 0;
     // Family/Model/Stepping/Feature Flags https://www.sandpile.org/x86/cpuid.htm#leaf_0000_0001h
@@ -75,14 +75,19 @@ namespace {
             __cpuid_count(kFlagsLeaf, kFlagsSubleaf, abcd[0], abcd[1], abcd[2], abcd[3]);
         }
 
-        uint64_t xgetbv() {
-            // https://www.felixcloutier.com/x86/xgetbv
-            // "Execute XGETBV with ECX = 0 to discover the value of XCR0 ...
-            constexpr uint32_t xcr = 0;
-            uint32_t eax, edx;
-            __asm__ __volatile__ ( "xgetbv" : "=a"(eax), "=d"(edx) : "c"(xcr));
-            return (uint64_t)(edx) << 32 | eax;
-        }
+        #if defined(SK_CPU_E2K)
+            #include <e2kbuiltin.h>
+            uint64_t xgetbv() { return _xgetbv(0); }
+        #else
+            uint64_t xgetbv() {
+                 // https://www.felixcloutier.com/x86/xgetbv
+                // "Execute XGETBV with ECX = 0 to discover the value of XCR0 ...
+                constexpr uint32_t xcr = 0;
+                uint32_t eax, edx;
+                __asm__ __volatile__ ( "xgetbv" : "=a"(eax), "=d"(edx) : "c"(xcr));
+                return (uint64_t)(edx) << 32 | eax;
+            }
+        #endif
     #endif
 
     // The comments on each of the below lines correspond to constants defined in <cpuid.h>

@@ -15,7 +15,7 @@ UNIFIED_SOURCES += [
     'yuv_row_table.cpp',
 ]
 
-if CONFIG['INTEL_ARCHITECTURE']:
+if CONFIG['INTEL_ARCHITECTURE'] or CONFIG['ELBRUS_ARCHITECTURE']:
     # These files use MMX and SSE2 intrinsics, so they need special compile flags
     # on some compilers.
     SOURCES += ['yuv_convert_sse2.cpp']
@@ -41,6 +41,11 @@ if CONFIG['CC_TYPE'] == 'clang-cl':
         SOURCES += [
             'yuv_row_win.cpp',
         ]
+elif CONFIG['ELBRUS_ARCHITECTURE']:
+    # MSVC uses emmintrinsic, we can use them instead of asm
+    SOURCES += [
+        'yuv_row_win64.cpp',
+    ]
 elif CONFIG['OS_ARCH'] in ('Linux', 'SunOS', 'Darwin', 'DragonFly',
                            'FreeBSD', 'NetBSD', 'OpenBSD'):
     SOURCES += [

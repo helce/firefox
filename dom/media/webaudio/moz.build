@@ -131,8 +131,8 @@ if CONFIG["TARGET_CPU"] == "aarch64" or CONFIG["BUILD_ARM_NEON"]:
     SOURCES += ["AudioNodeEngineNEON.cpp"]
     SOURCES["AudioNodeEngineNEON.cpp"].flags += CONFIG["NEON_FLAGS"]
 
-# Are we targeting x86 or x64?  If so, build SSEX files.
-if CONFIG["INTEL_ARCHITECTURE"]:
+# Are we targeting x86 or x64 or e2k?  If so, build SSEX files.
+if CONFIG["INTEL_ARCHITECTURE"] or CONFIG["ELBRUS_ARCHITECTURE"]:
     DEFINES["USE_SSE2"] = True
     SOURCES += ["AudioNodeEngineSSE2.cpp"]
     LOCAL_INCLUDES += ["/third_party/xsimd/include"]

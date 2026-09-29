@@ -6,7 +6,7 @@
 #define mozilla_htmlaccel_htmlaccelEnabled_h
 
 #include "mozilla/Assertions.h"
-#if defined(__x86_64__)
+#if defined(__x86_64__) || defined(__e2k__)
 #  include "mozilla/SSE.h"
 #endif
 
@@ -31,7 +31,7 @@ inline bool htmlaccelEnabled() {
 #elif defined(__aarch64__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 #  define MOZ_MAY_HAVE_HTMLACCEL 1
   return true;
-#elif defined(__x86_64__)
+#elif defined(__x86_64__) || defined(__e2k__)
 #  define MOZ_MAY_HAVE_HTMLACCEL 1
   bool ret = mozilla::supports_bmi();
   if (ret) {

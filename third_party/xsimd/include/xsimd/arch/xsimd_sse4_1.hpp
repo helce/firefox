@@ -154,7 +154,7 @@ namespace xsimd
             }
             else XSIMD_IF_CONSTEXPR(sizeof(T) == 8)
             {
-#if (!defined(_MSC_VER) && __x86_64__) || (_MSC_VER > 1900 && defined(_M_X64))
+#if (!defined(_MSC_VER) && __x86_64__) || (_MSC_VER > 1900 && defined(_M_X64)) || defined(__e2k__)
                 return _mm_insert_epi64(self, val, I);
 #else
                 uint32_t lo, hi;

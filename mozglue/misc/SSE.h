@@ -95,7 +95,7 @@
  *
  */
 
-#if defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))
+#if defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__) || defined(__e2k__))
 
 #  ifdef __MMX__
 // It's ok to use MMX instructions based on the -march option (or

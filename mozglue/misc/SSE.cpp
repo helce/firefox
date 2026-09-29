@@ -270,11 +270,18 @@ MOZ_RUNINIT bool has_constant_tsc = has_cpuid_bits(0x80000007u, edx, (1u << 8));
 
 #ifdef HAVE_CPUID_H
 
+#  ifdef __e2k__
+#    include <e2kbuiltin.h>
+uint64_t xgetbv(uint32_t xcr) {
+  return _xgetbv(xcr);
+}
+#  else
 uint64_t xgetbv(uint32_t xcr) {
   uint32_t eax, edx;
   __asm__(".byte 0x0f, 0x01, 0xd0" : "=a"(eax), "=d"(edx) : "c"(xcr));
   return (uint64_t)(edx) << 32 | eax;
 }
+#  endif
 
 #endif
 

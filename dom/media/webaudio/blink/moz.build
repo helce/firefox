@@ -22,8 +22,8 @@ UNIFIED_SOURCES += [
     "ZeroPole.cpp",
 ]
 
-# Are we targeting x86 or x64?  If so, build SSE2 files.
-if CONFIG["INTEL_ARCHITECTURE"]:
+# Are we targeting x86 or x64 or e2k?  If so, build SSE2 files.
+if CONFIG["INTEL_ARCHITECTURE"] or CONFIG["ELBRUS_ARCHITECTURE"]:
     DEFINES["USE_SSE2"] = True
 
 include("/ipc/chromium/chromium-config.mozbuild")

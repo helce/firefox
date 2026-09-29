@@ -2064,7 +2064,7 @@ mmx_fill (pixman_implementation_t *imp,
     uint32_t byte_width;
     uint8_t     *byte_line;
 
-#if defined __GNUC__ && defined USE_X86_MMX
+#if defined __GNUC__ && defined USE_X86_MMX && !defined(__e2k__)
     __m64 v1, v2, v3, v4, v5, v6, v7;
 #endif
 
@@ -2098,7 +2098,7 @@ mmx_fill (pixman_implementation_t *imp,
     fill = ((uint64_t)filler << 32) | filler;
     vfill = to_m64 (fill);
 
-#if defined __GNUC__ && defined USE_X86_MMX
+#if defined __GNUC__ && defined USE_X86_MMX && !defined(__e2k__)
     __asm__ (
         "movq		%7,	%0\n"
         "movq		%7,	%1\n"
@@ -2144,7 +2144,7 @@ mmx_fill (pixman_implementation_t *imp,
 
 	while (w >= 64)
 	{
-#if defined __GNUC__ && defined USE_X86_MMX
+#if defined __GNUC__ && defined USE_X86_MMX && !defined(__e2k__)
 	    __asm__ (
 	        "movq	%1,	  (%0)\n"
 	        "movq	%2,	 8(%0)\n"
@@ -3316,7 +3316,7 @@ mmx_blt (pixman_implementation_t *imp,
 
 	while (w >= 64)
 	{
-#if (defined (__GNUC__) || (defined(__SUNPRO_C) && (__SUNPRO_C >= 0x590))) && defined USE_X86_MMX
+#if (defined (__GNUC__) || (defined(__SUNPRO_C) && (__SUNPRO_C >= 0x590))) && defined USE_X86_MMX && !defined(__e2k__)
 	    __asm__ (
 	        "movq	  (%1),	  %%mm0\n"
 	        "movq	 8(%1),	  %%mm1\n"

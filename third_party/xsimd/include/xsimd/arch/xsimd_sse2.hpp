@@ -1589,7 +1589,7 @@ namespace xsimd
             {
                 __m128i tmp1 = _mm_shuffle_epi32(self, 0x0E);
                 __m128i tmp2 = _mm_add_epi64(self, tmp1);
-#if defined(__x86_64__)
+#if defined(__x86_64__) || defined(__e2k__)
                 return _mm_cvtsi128_si64(tmp2);
 #else
                 __m128i m;

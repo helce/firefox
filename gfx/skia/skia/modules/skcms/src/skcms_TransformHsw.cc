@@ -28,8 +28,10 @@
         #include <smmintrin.h>
         #include <avxintrin.h>
         #include <avx2intrin.h>
-        #include <avx512fintrin.h>
-        #include <avx512dqintrin.h>
+        #if !defined(__e2k__)
+            #include <avx512fintrin.h>
+            #include <avx512dqintrin.h>
+        #endif
     #endif
 #endif
 
