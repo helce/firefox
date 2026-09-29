@@ -146,6 +146,11 @@
 #endif
 #define FPREGS_OFFSET_MXCSR  24
 
+#elif defined (__e2k__)
+// LCC doen't work good with preprocessor in an asm files
+// so just keep them for test purposes
+#define MCONTEXT_GREGS_OFFSET 0x28
+#define UCONTEXT_SIGMASK_OFFSET 0x650
 #else
 #error "This header has not been ported for your CPU"
 #endif

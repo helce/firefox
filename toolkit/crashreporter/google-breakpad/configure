@@ -6664,7 +6664,7 @@ _ACEOF
 fi
 done
 
- if test "x$ac_cv_func_getcontext" = xyes; then
+ if test "x$ac_cv_func_getcontext" = xyes -a "x$host_cpu" != xe2k; then
   HAVE_GETCONTEXT_TRUE=
   HAVE_GETCONTEXT_FALSE='#'
 else

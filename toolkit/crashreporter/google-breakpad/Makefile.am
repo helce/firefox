@@ -296,6 +296,8 @@ src_libbreakpad_a_SOURCES = \
 	src/processor/stackwalker_sparc.h \
 	src/processor/stackwalker_x86.cc \
 	src/processor/stackwalker_x86.h \
+	src/processor/stackwalker_e2k.cc \
+	src/processor/stackwalker_e2k.h \
 	src/processor/static_address_map-inl.h \
 	src/processor/static_address_map.h \
 	src/processor/static_contained_range_map-inl.h \
@@ -855,6 +857,7 @@ src_processor_exploitability_unittest_LDADD = \
 	src/processor/stackwalker_ppc64.o \
 	src/processor/stackwalker_sparc.o \
 	src/processor/stackwalker_x86.o \
+	src/processor/stackwalker_e2k.o \
 	src/processor/symbolic_constants_win.o \
 	src/processor/tokenize.o \
 	src/third_party/libdisasm/libdisasm.a \
@@ -928,6 +931,7 @@ src_processor_microdump_processor_unittest_LDADD = \
 	src/processor/stackwalker_ppc64.o \
 	src/processor/stackwalker_sparc.o \
 	src/processor/stackwalker_x86.o \
+	src/processor/stackwalker_e2k.o \
 	src/processor/tokenize.o \
 	$(TEST_LIBS) \
 	$(PTHREAD_CFLAGS) $(PTHREAD_LIBS)
@@ -967,6 +971,7 @@ src_processor_minidump_processor_unittest_LDADD = \
 	src/processor/stackwalker_ppc64.o \
 	src/processor/stackwalker_sparc.o \
 	src/processor/stackwalker_x86.o \
+	src/processor/stackwalker_e2k.o \
 	src/processor/symbolic_constants_win.o \
 	src/processor/tokenize.o \
 	src/third_party/libdisasm/libdisasm.a \
@@ -1110,6 +1115,7 @@ src_processor_stackwalker_selftest_LDADD = \
 	src/processor/stackwalker_ppc64.o \
 	src/processor/stackwalker_sparc.o \
 	src/processor/stackwalker_x86.o \
+	src/processor/stackwalker_e2k.o \
 	src/processor/tokenize.o \
 	$(PTHREAD_CFLAGS) $(PTHREAD_LIBS)
 
@@ -1253,6 +1259,7 @@ src_processor_microdump_stackwalk_LDADD = \
 	src/processor/stackwalker_ppc64.o \
 	src/processor/stackwalker_sparc.o \
 	src/processor/stackwalker_x86.o \
+	src/processor/stackwalker_e2k.o \
 	src/processor/tokenize.o \
 	src/third_party/libdisasm/libdisasm.a
 
@@ -1292,6 +1299,7 @@ src_processor_minidump_stackwalk_LDADD = \
 	src/processor/stackwalker_ppc64.o \
 	src/processor/stackwalker_sparc.o \
 	src/processor/stackwalker_x86.o \
+	src/processor/stackwalker_e2k.o \
 	src/processor/symbolic_constants_win.o \
 	src/processor/tokenize.o \
 	src/third_party/libdisasm/libdisasm.a

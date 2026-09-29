@@ -71,10 +71,23 @@ struct ThreadInfo {
 #elif defined(__mips__)
   // Use the structure defined in <sys/ucontext.h>.
   mcontext_t mcontext;
+#elif defined(__e2k__)
+  // Use the structures defined in <sys/user.h>
+  struct user_regs_struct regs;
+  uintptr_t proc_stack_base;
+  uintptr_t chain_stack_base;
 #endif
 
   // Returns the instruction pointer (platform-dependent impl.).
   uintptr_t GetInstructionPointer() const;
+
+#if defined(__e2k__)
+  // Returns procedure stack pointer (e2k-specific).
+  uintptr_t GetProcStackPointer() const;
+
+  // Returns chain stack pointer (e2k-specific).
+  uintptr_t GetChainStackPointer() const;
+#endif
 
   // Fills a RawContextCPU using the context in the ThreadInfo object.
   void FillCPUContext(RawContextCPU* out) const;

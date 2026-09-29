@@ -228,6 +228,38 @@ void ThreadInfo::FillCPUContext(RawContextCPU* out) const {
       MD_FLOATINGSAVEAREA_ARM64_FPR_COUNT * 16);
 }
 
+#elif defined(__e2k__)
+
+uintptr_t ThreadInfo::GetInstructionPointer() const {
+  // cr0_hi(ip [VA_MSB:ALIGN_INS])
+  return regs.cr0_hi & 0xfffffffffff8;
+}
+
+uintptr_t ThreadInfo::GetProcStackPointer() const {
+  // psp_lo(base) + psp_hi(ind)
+  return proc_stack_base + (regs.psp_hi & 0xffffffff);
+}
+
+uintptr_t ThreadInfo::GetChainStackPointer() const {
+  // pcsp_lo(base) + pcsp_hi(ind)
+  return chain_stack_base + (regs.pcsp_hi & 0xffffffff);
+}
+
+void ThreadInfo::FillCPUContext(RawContextCPU* out) const {
+  out->context_flags = MD_CONTEXT_E2K_FULL;
+  out->usbr = regs.usbr;
+  out->usd_lo = regs.usd_lo;
+  out->usd_hi = regs.usd_hi;
+  out->psp_lo = regs.psp_lo;
+  out->psp_hi = regs.psp_hi;
+  out->cr0_lo = regs.cr0_lo;
+  out->cr0_hi = regs.cr0_hi;
+  out->cr1_lo = regs.cr1_lo;
+  out->cr1_hi = regs.cr1_hi;
+  out->pcsp_lo = regs.pcsp_lo;
+  out->pcsp_hi = regs.pcsp_hi;
+}
+
 #elif defined(__mips__)
 
 uintptr_t ThreadInfo::GetInstructionPointer() const {
@@ -280,6 +312,9 @@ void ThreadInfo::GetGeneralPurposeRegisters(void** gp_regs, size_t* size) {
   if (size)
     *size = sizeof(mcontext.gregs);
 #else
+#if defined(__e2k__)
+  regs.sizeof_struct = sizeof(regs);
+#endif
   if (gp_regs)
     *gp_regs = &regs;
   if (size)
@@ -294,6 +329,9 @@ void ThreadInfo::GetFloatingPointRegisters(void** fp_regs, size_t* size) {
     *fp_regs = &mcontext.fpregs;
   if (size)
     *size = sizeof(mcontext.fpregs);
+#elif defined(__e2k__)
+  /* No special fpregs for e2k */
+  return;
 #else
   if (fp_regs)
     *fp_regs = &fpregs;

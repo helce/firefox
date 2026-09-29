@@ -281,9 +281,12 @@ class MinidumpThread : public MinidumpObject {
   virtual ~MinidumpThread();
 
   const MDRawThread* thread() const { return valid_ ? &thread_ : NULL; }
+  const MDRawE2kThreadExtend* e2k_thread() const { return valid_? &e2k_thread_ : NULL; }
   // GetMemory may return NULL even if the MinidumpThread is valid,
   // if the thread memory cannot be read.
   virtual MinidumpMemoryRegion* GetMemory();
+  virtual MinidumpMemoryRegion* GetChainStack();
+  virtual MinidumpMemoryRegion* GetProcedureStack();
   // Corresponds to win32's GetLastError function, which records the last
   // error value set by the OS for this thread. A more useful error message
   // can be produced by passing this value to FormatMessage:
@@ -310,9 +313,11 @@ class MinidumpThread : public MinidumpObject {
   // MinidumpThread is invalid.  Note that this method can be called even when
   // the thread memory cannot be read and GetMemory returns NULL.
   virtual uint64_t GetStartOfStackMemoryRange() const;
+  virtual uint64_t GetStartOfChainStackRange() const;
+  virtual uint64_t GetStartOfProcedureStackRange() const;
 
  protected:
-  explicit MinidumpThread(Minidump* minidump);
+  explicit MinidumpThread(Minidump* minidump, bool ext);
 
  private:
   // These objects are managed by MinidumpThreadList.
@@ -323,8 +328,12 @@ class MinidumpThread : public MinidumpObject {
   // MinidumpThreadList handles that directly.
   bool Read();
 
+  bool                  thread_extend;
   MDRawThread           thread_;
+  MDRawE2kThreadExtend  e2k_thread_;
   MinidumpMemoryRegion* memory_;
+  MinidumpMemoryRegion* chain_stack_;
+  MinidumpMemoryRegion* procedure_stack_;
   MinidumpContext*      context_;
 };
 

@@ -151,7 +151,7 @@ bool LinuxPtraceDumper::CopyFromProcess(void* dest, pid_t child,
 
 bool LinuxPtraceDumper::ReadRegisterSet(ThreadInfo* info, pid_t tid)
 {
-#ifdef PTRACE_GETREGSET
+#if defined(PTRACE_GETREGSET) && !defined(__e2k__)
   struct iovec io;
   info->GetGeneralPurposeRegisters(&io.iov_base, &io.iov_len);
   if (sys_ptrace(PTRACE_GETREGSET, tid, (void*)NT_PRSTATUS, (void*)&io) == -1) {
@@ -169,14 +169,14 @@ bool LinuxPtraceDumper::ReadRegisterSet(ThreadInfo* info, pid_t tid)
 }
 
 bool LinuxPtraceDumper::ReadRegisters(ThreadInfo* info, pid_t tid) {
-#ifdef PTRACE_GETREGS
+#if (defined(PTRACE_GETREGS) || defined(__e2k__))
   void* gp_addr;
   info->GetGeneralPurposeRegisters(&gp_addr, NULL);
   if (sys_ptrace(PTRACE_GETREGS, tid, NULL, gp_addr) == -1) {
     return false;
   }
 
-#if !(defined(__ANDROID__) && defined(__ARM_EABI__))
+#if !((defined(__ANDROID__) && defined(__ARM_EABI__)) || defined(__e2k__))
   // When running an arm build on an arm64 device, attempting to get the
   // floating point registers fails. On Android, the floating point registers
   // aren't written to the cpu context anyway, so just don't get them here.
@@ -298,10 +298,22 @@ bool LinuxPtraceDumper::GetThreadInfoByIndex(size_t index, ThreadInfo* info) {
 #elif defined(__mips__)
   stack_pointer =
       reinterpret_cast<uint8_t*>(info->mcontext.gregs[MD_CONTEXT_MIPS_REG_SP]);
+#elif defined(__e2k__)
+  const uint8_t* proc_stack_base;
+  const uint8_t* chain_stack_base;
+  memcpy(&stack_pointer, &info->regs.usd_lo, sizeof(info->regs.usd_lo));
+  memcpy(&proc_stack_base, &info->regs.psp_lo, sizeof(info->regs.psp_lo));
+  memcpy(&chain_stack_base, &info->regs.pcsp_lo, sizeof(info->regs.pcsp_lo));
 #else
 #error "This code hasn't been ported to your platform yet."
 #endif
+#if defined(__e2k__)
+  info->stack_pointer = reinterpret_cast<uintptr_t>(stack_pointer) & 0xffffffffffff; // [rwap base [47: 0]
+  info->proc_stack_base = reinterpret_cast<uintptr_t>(proc_stack_base) & 0xffffffffffff; // [rwap base [47: 0]
+  info->chain_stack_base = reinterpret_cast<uintptr_t>(chain_stack_base) & 0xffffffffffff; // [rwap base [47: 0]
+#else
   info->stack_pointer = reinterpret_cast<uintptr_t>(stack_pointer);
+#endif
 
   return true;
 }

@@ -21,13 +21,13 @@ use {
 };
 
 #[allow(non_camel_case_types)]
-#[cfg(not(target_arch = "arm"))]
+#[cfg(not(any(target_arch = "arm", target_arch = "e2k")))]
 type fpregset_t = crash_context::fpregset_t;
 
 // This structure is absent on ARM.
 // (We use u8 because it has no alignment requirements and zero-sized types are not FFI-safe)
 #[allow(non_camel_case_types)]
-#[cfg(target_arch = "arm")]
+#[cfg(any(target_arch = "arm", target_arch = "e2k"))]
 type fpregset_t = u8;
 
 /// Context gatherer for [`MinidumpWriter`]
@@ -169,17 +169,17 @@ pub extern "C" fn minidump_writer_set_crash_context(
     float_state: Option<&fpregset_t>,
     siginfo: Option<&libc::signalfd_siginfo>,
 ) {
-    #[cfg(not(target_arch = "arm"))]
+    #[cfg(not(any(target_arch = "arm", target_arch = "e2k")))]
     let float_state = float_state.unwrap().clone();
 
-    #[cfg(target_arch = "arm")]
+    #[cfg(any(target_arch = "arm", target_arch = "e2k"))]
     assert!(float_state.is_none());
 
     context.siginfo = siginfo.cloned();
     context.writer_config.set_crash_context(CrashContext {
         inner: crash_context::CrashContext {
             context: ucontext.clone(),
-            #[cfg(not(target_arch = "arm"))]
+            #[cfg(not(any(target_arch = "arm", target_arch = "e2k")))]
             float_state,
             siginfo: siginfo
                 .cloned()

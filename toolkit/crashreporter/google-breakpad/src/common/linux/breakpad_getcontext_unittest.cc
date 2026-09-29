@@ -182,6 +182,11 @@ TEST(AndroidUContext, GRegsOffset) {
                     fpregs_offset_mxcsr);
   COMPILE_ASSERT_EQ(UCONTEXT_SIGMASK_OFFSET, offsetof(ucontext_t, uc_sigmask),
                     ucontext_sigmask);
+#elif defined(__e2k__)
+  // There is no gregs[] array on E2K, so compare to the offset of
+  // first register fields, since they're stored in order.
+  ASSERT_EQ(static_cast<size_t>(MCONTEXT_GREGS_OFFSET),
+            offsetof(ucontext_t,uc_mcontext.cr0_lo));
 #else
   ASSERT_EQ(static_cast<size_t>(MCONTEXT_GREGS_OFFSET),
             offsetof(ucontext_t,uc_mcontext.gregs));

@@ -113,6 +113,8 @@
         'stackwalker_sparc.h',
         'stackwalker_x86.cc',
         'stackwalker_x86.h',
+        'stackwalker_e2k.cc',
+        'stackwalker_e2k.h',
         'static_address_map-inl.h',
         'static_address_map.h',
         'static_contained_range_map-inl.h',

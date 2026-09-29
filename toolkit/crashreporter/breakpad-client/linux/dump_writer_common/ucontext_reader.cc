@@ -208,6 +208,55 @@ void UContextReader::FillCPUContext(RawContextCPU *out, const ucontext_t *uc,
       MD_FLOATINGSAVEAREA_ARM64_FPR_COUNT * 16);
 }
 
+#elif defined(__e2k__)
+
+
+uintptr_t UContextReader::GetStackPointer(const struct ucontext* uc) {
+  // grows down, so tecnically its base
+  // usd_lo(base [VA_MSB:0])
+  return uc->uc_mcontext.usd_lo & 0xffffffffffff;
+}
+
+uintptr_t UContextReader::GetInstructionPointer(const struct ucontext* uc) {
+  // cr0_hi(ip [VA_MSB:ALIGN_INS])
+  return uc->uc_mcontext.cr0_hi & 0xfffffffffff8;
+}
+
+uintptr_t UContextReader::GetProcStackBase(const ucontext_t* uc) {
+  // psp_lo(base [VA_MSB:0])
+  return uc->uc_mcontext.psp_lo & 0xffffffffffff;
+}
+
+uintptr_t UContextReader::GetChainStackBase(const ucontext_t* uc) {
+  // pcsp_lo(base [VA_MSB:0])
+  return uc->uc_mcontext.pcsp_lo & 0xffffffffffff;
+}
+
+uintptr_t UContextReader::GetProcStackPointer(const ucontext_t* uc, uintptr_t ps_base) {
+  // psp_lo(base) + psp_hi(ind)
+  return ps_base + (uc->uc_mcontext.psp_hi & 0xffffffff);
+}
+
+uintptr_t UContextReader::GetChainStackPointer(const ucontext_t* uc, uintptr_t pcs_base) {
+  // pcsp_lo(base) + pcsp_hi(ind)
+  return pcs_base + (uc->uc_mcontext.pcsp_hi & 0xffffffff);
+}
+
+void UContextReader::FillCPUContext(RawContextCPU* out, const ucontext_t* uc) {
+  out->context_flags = MD_CONTEXT_E2K_FULL;
+  out->usbr = uc->uc_mcontext.sbr;
+  out->usd_lo = uc->uc_mcontext.usd_lo;
+  out->usd_hi = uc->uc_mcontext.usd_hi;
+  out->psp_lo = uc->uc_mcontext.psp_lo;
+  out->psp_hi = uc->uc_mcontext.psp_hi;
+  out->cr0_lo = uc->uc_mcontext.cr0_lo;
+  out->cr0_hi = uc->uc_mcontext.cr0_hi;
+  out->cr1_lo = uc->uc_mcontext.cr1_lo;
+  out->cr1_hi = uc->uc_mcontext.cr1_hi;
+  out->pcsp_lo = uc->uc_mcontext.pcsp_lo;
+  out->pcsp_hi = uc->uc_mcontext.pcsp_hi;
+}
+
 #elif defined(__mips__)
 
 uintptr_t UContextReader::GetStackPointer(const ucontext_t* uc) {

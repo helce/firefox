@@ -34,7 +34,9 @@
 #include <config.h>
 #endif
 
-#ifndef HAVE_GETCONTEXT
+// Current realisation of getcontext in e2k does not save all needed
+// registers, so save them manually
+#if !defined(HAVE_GETCONTEXT) || defined(__e2k__)
 
 #include <signal.h>
 

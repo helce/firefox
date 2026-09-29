@@ -51,7 +51,8 @@ struct StackFrame {
     FRAME_TRUST_FP,        // Derived from frame pointer
     FRAME_TRUST_CFI,       // Derived from call frame info
     FRAME_TRUST_PREWALKED, // Explicitly provided by some external stack walker.
-    FRAME_TRUST_CONTEXT    // Given as instruction pointer in a context
+    FRAME_TRUST_CONTEXT,   // Given as instruction pointer in a context
+    FRAME_TRUST_CF         // Received from Chain File
   };
 
   StackFrame()
@@ -81,6 +82,8 @@ struct StackFrame {
         return "previous frame's frame pointer";
       case StackFrame::FRAME_TRUST_SCAN:
         return "stack scanning";
+      case StackFrame::FRAME_TRUST_CF:
+        return "chain file";
       default:
         return "unknown";
     }

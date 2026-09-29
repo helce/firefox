@@ -2866,9 +2866,8 @@ static nsresult PrefSubmitReports(bool* aSubmitReports, bool writePref) {
   NS_ENSURE_SUCCESS(rv, rv);
   if (!exists) {
     if (!writePref) {
-      // If reading the pref, default to true if the settings file doesn't
-      // exist.
-      *aSubmitReports = true;
+      // Not in an upstream, so set to false to avoid spamming to mozilla
+      *aSubmitReports = false;
       return NS_OK;
     }
     // Create the file so the JSON processor can write to it.

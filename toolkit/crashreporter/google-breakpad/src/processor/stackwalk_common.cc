@@ -166,6 +166,18 @@ static void PrintStackContents(const string &indent,
       stack_begin = frame_arm64->context.iregs[31];
       stack_end = prev_frame_arm64->context.iregs[31];
     }
+  } else if (cpu == "e2k") {
+    word_length = 8;
+    const StackFrameE2K* frame_e2k =
+        static_cast<const StackFrameE2K*>(frame);
+    const StackFrameE2K* prev_frame_e2k =
+        static_cast<const StackFrameE2K*>(prev_frame);
+    if ((frame_e2k->context_validity & StackFrameE2K::CONTEXT_VALID_ALL) &&
+        (prev_frame_e2k->context_validity &
+         StackFrameE2K::CONTEXT_VALID_ALL)) {
+      stack_begin = frame_e2k->sp;
+      stack_end = prev_frame_e2k->sp;
+    }
   }
   if (!word_length || !stack_begin || !stack_end)
     return;

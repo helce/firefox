@@ -65,6 +65,7 @@ static const char kArm64Architecture[] = "arm64";
 static const char kX86Architecture[] = "x86";
 static const char kMipsArchitecture[] = "mips";
 static const char kMips64Architecture[] = "mips64";
+static const char kE2KArchitecture[] = "e2k";
 static const char kGpuUnknown[] = "UNKNOWN";
 
 template<typename T>
@@ -151,6 +152,11 @@ void MicrodumpContext::SetContextMIPS64(MDRawContextMIPS* mips64) {
   valid_ = true;
 }
 
+void MicrodumpContext::SetContextE2K(MDRawContextE2K* e2k) {
+  DumpContext::SetContextFlags(MD_CONTEXT_E2K);
+  DumpContext::SetContextE2K(e2k);
+  valid_ = true;
+}
 
 //
 // MicrodumpMemoryRegion
@@ -359,6 +365,16 @@ Microdump::Microdump(const string& contents)
         MDRawContextMIPS* mips64 = new MDRawContextMIPS();
         memcpy(mips64, &cpu_state_raw[0], cpu_state_raw.size());
         context_->SetContextMIPS64(mips64);
+      } else if (strcmp(arch.c_str(), kE2KArchitecture) == 0) {
+        if (cpu_state_raw.size() != sizeof(MDRawContextE2K)) {
+          std::cerr << "Malformed CPU context. Got " << cpu_state_raw.size()
+                    << " bytes instead of " << sizeof(MDRawContextE2K)
+                    << std::endl;
+          continue;
+        }
+        MDRawContextE2K* e2k = new MDRawContextE2K();
+        memcpy(e2k, &cpu_state_raw[0], cpu_state_raw.size());
+        context_->SetContextE2K(e2k);
       } else {
         std::cerr << "Unsupported architecture: " << arch << std::endl;
       }

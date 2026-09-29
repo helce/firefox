@@ -315,7 +315,7 @@ CrashGenerationServer::ClientEvent(short revents)
   if (writer) {
     const fpregset_t *float_state = nullptr;
 
-#  ifndef __arm__
+#  if !(defined(__arm__) || defined(__e2k__))
     float_state = reinterpret_cast<const fpregset_t *>(&breakpad_cc->float_state);
 #  endif
 

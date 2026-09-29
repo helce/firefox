@@ -66,6 +66,7 @@ ProcessResult MicrodumpProcessor::Process(Microdump *microdump,
                             &process_state->system_info_,
                             microdump->GetContext(),
                             microdump->GetMemory(),
+                            NULL, NULL,
                             process_state->modules_,
                             /* unloaded_modules= */ NULL,
                             frame_symbolizer_));

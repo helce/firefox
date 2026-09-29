@@ -424,7 +424,9 @@ mod processor {
                 thread.context(&self.system_info, self.misc_info.as_ref())
             }
             .map(|c| c.into_owned());
-
+            #[cfg(target_arch = "e2k")]
+            let mut stack_memory = thread.chain_stack_memory(&self.memory_list);
+            #[cfg(not(target_arch = "e2k"))]
             let mut stack_memory = thread.stack_memory(&self.memory_list);
 
             let Some(mut call_stack) = context.map(CallStack::with_context) else {

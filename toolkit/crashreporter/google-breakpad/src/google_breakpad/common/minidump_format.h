@@ -120,6 +120,7 @@ typedef struct {
 #include "minidump_cpu_ppc64.h"
 #include "minidump_cpu_sparc.h"
 #include "minidump_cpu_x86.h"
+#include "minidump_cpu_e2k.h"
 
 /*
  * WinVer.h
@@ -384,6 +385,17 @@ typedef struct {
   MDLocationDescriptor thread_context;  /* MDRawContext[CPU] */
 } MDRawThread;  /* MINIDUMP_THREAD */
 
+typedef struct {
+  uint32_t             thread_id;
+  MDMemoryDescriptor   proc_stack;
+  MDMemoryDescriptor   chain_stack;
+  uint64_t             unused;
+} MDRawE2kThreadExtend; /* MINIDUMP_THREAD_E2K */
+
+typedef struct {
+  MDRawThread          thread;
+  MDRawE2kThreadExtend e2k_thread;
+} MDRawThreadExtend; /* MINIDUMP_THREAD_EXTEND */
 
 typedef struct {
   uint32_t    number_of_threads;
@@ -589,6 +601,12 @@ typedef union {
     uint32_t elf_hwcaps;    /* linux specific, 0 otherwise */
   } arm_cpu_info;
   struct {
+    uint32_t vendor_id[3];
+    uint32_t iset_id;     /* /proc/cpuinfo "cpu family" */
+    uint32_t model_id;    /* /proc/cpuinfo "model" IDR.mdl 8bit */
+    uint32_t revision_id; /* /proc/cpuinfo "revision" */
+  } e2k_cpu_info;
+  struct {
     uint64_t processor_features[2];
   } other_cpu_info;
 } MDCPUInformation;  /* CPU_INFORMATION */
@@ -671,6 +689,7 @@ typedef enum {
   MD_CPU_ARCHITECTURE_PPC64     = 0x8002, /* Breakpad-defined value for PPC64 */
   MD_CPU_ARCHITECTURE_ARM64_OLD = 0x8003, /* Breakpad-defined value for ARM64 */
   MD_CPU_ARCHITECTURE_MIPS64    = 0x8004, /* Breakpad-defined value for MIPS64 */
+  MD_CPU_ARCHITECTURE_E2K       = 0x8005, /* Breakpad-defined value for E2K */
   MD_CPU_ARCHITECTURE_UNKNOWN   = 0xffff  /* PROCESSOR_ARCHITECTURE_UNKNOWN */
 } MDCPUArchitecture;
 

@@ -3410,7 +3410,7 @@ set_config(
 @depends(target)
 def oxidized_breakpad(target):
     if target.kernel == "Linux":
-        return target.cpu in ("aarch64", "arm", "x86", "x86_64")
+        return target.cpu in ("aarch64", "arm", "x86", "x86_64", "e2k")
     return False
 
 
@@ -3465,7 +3465,7 @@ with only_when(compile_environment):
 def crashreporter_default(target, developer_options, artifacts):
     if target.os in ("WINNT", "OSX"):
         return True
-    if target.kernel == "Linux" and target.cpu in ("x86", "x86_64", "arm", "aarch64"):
+    if target.kernel == "Linux" and target.cpu in ("x86", "x86_64", "arm", "aarch64", "e2k"):
         # The crash reporter prevents crash stacktraces to be logged in the
         # logs on Android, so we leave it out by default in developer builds.
         return target.os != "Android" or not developer_options or artifacts

@@ -400,6 +400,23 @@ struct StackFrameMIPS : public StackFrame {
   int context_validity;
 };
 
+struct StackFrameE2K : public StackFrame {
+  enum ContextValidity {
+    CONTEXT_VALID_NONE = 0,
+    CONTEXT_VALID_ALL  = ~CONTEXT_VALID_NONE
+  };
+
+  StackFrameE2K() : context(),
+     context_validity(CONTEXT_VALID_NONE),
+     sp(0), stack_size(0) {}
+  MDRawContextE2K context;
+  int context_validity;
+  uint64_t sp;
+  uint64_t stack_size;
+  uint64_t pcs;
+};
+
+
 }  // namespace google_breakpad
 
 #endif  // GOOGLE_BREAKPAD_PROCESSOR_STACK_FRAME_CPU_H__

@@ -295,8 +295,7 @@ struct kernel_rusage {
 };
 
 #if defined(__i386__) || defined(__ARM_EABI__) || defined(__ARM_ARCH_3__) \
-  || defined(__PPC__) || (defined(__s390__) && !defined(__s390x__)) \
-  || defined(__e2k__)
+  || defined(__PPC__) || (defined(__s390__) && !defined(__s390x__))
 
 /* include/asm-{arm,i386,mips,ppc}/signal.h                                  */
 struct kernel_old_sigaction {
@@ -424,25 +423,23 @@ struct kernel_stat64 {
 };
 #elif defined(__e2k__)
 struct kernel_stat64 {
-  unsigned long long st_dev;
-  unsigned long long st_ino;
+  unsigned long      st_dev;
+  unsigned long      st_ino;
   unsigned int       st_mode;
   unsigned int       st_nlink;
   unsigned int       st_uid;
   unsigned int       st_gid;
-  unsigned long long st_rdev;
-  long long          st_size;
-  int                st_blksize;
-  int                __pad2;
-  unsigned long long st_blocks;
+  unsigned long      st_rdev;
+  unsigned long      st_size;
+  unsigned int       st_blksize;
+  unsigned int       __unused1;
+  unsigned long      st_blocks;
   int                st_atime_;
   unsigned int       st_atime_nsec_;
   int                st_mtime_;
   unsigned int       st_mtime_nsec_;
   int                st_ctime_;
   unsigned int       st_ctime_nsec_;
-  unsigned int       __unused4;
-  unsigned int       __unused5;
 };
 #else
 struct kernel_stat64 {
@@ -700,15 +697,15 @@ struct kernel_stat {
   unsigned long      __unused5;
 };
 #elif defined(__e2k__)
-typedef unsigned long kernel_blkcnt_t;
-typedef unsigned long kernel_blksize_t;
+typedef long kernel_blkcnt_t;
+typedef long kernel_blksize_t;
 typedef unsigned long kernel_dev_t;
 typedef unsigned int kernel_gid_t;
 typedef unsigned long kernel_ino_t;
 typedef unsigned int kernel_mode_t;
-typedef unsigned long kernel_nlink_t;
-typedef unsigned long kernel_off_t;
-typedef unsigned long kernel_time_t;
+typedef unsigned int kernel_nlink_t;
+typedef long kernel_off_t;
+typedef long kernel_time_t;
 typedef unsigned int kernel_uid_t;
 struct kernel_stat {
   kernel_dev_t       st_dev;
@@ -717,7 +714,7 @@ struct kernel_stat {
   kernel_nlink_t     st_nlink;
   kernel_uid_t       st_uid;
   kernel_gid_t       st_gid;
-  kernel_dev_t       st_rdev;
+  unsigned int       st_rdev;
   kernel_off_t       st_size;
   kernel_blksize_t   st_blksize;
   kernel_blkcnt_t    st_blocks;
@@ -3711,10 +3708,10 @@ struct kernel_statx {
       LSS_RETURN(int, __res);
     }
   #elif defined(__e2k__)
-
+    typedef unsigned long long __e2k_syscall_arg_t;
     #undef _LSS_BODY
     #define _LSS_BODY(nr, type, name, ...)                                    \
-      register unsigned long long __res;                                      \
+      __e2k_syscall_arg_t __res;                                              \
       __asm__ __volatile__                                                    \
       (                                                                       \
        "{\n\t"                                                                \
@@ -3846,7 +3843,7 @@ struct kernel_statx {
     LSS_INLINE int LSS_NAME(clone)(int (*fn)(void *), void *child_stack,
                                    int flags, void *arg, int *parent_tidptr,
                                    void *newtls, int *child_tidptr) {
-      unsigned long long __res;
+      __e2k_syscall_arg_t __res;
 
       __asm__ __volatile__ (
                             "{\n\t"
@@ -3945,18 +3942,16 @@ struct kernel_statx {
                             "{\n\t"
                             "  addd,s 0x0, %%b[0], %[res]\n\t"
                             "}\n\t"
-                            : [res] "=r" LSS_SYSCALL_ARG(__res)
-                            : [nr_clone] "ri" LSS_SYSCALL_ARG(__NR_clone)
-                              [arg] "ri" LSS_SYSCALL_ARG(arg)
-                              [nr_exit] "ri" LSS_SYSCALL_ARG(__NR_exit)
-                              [flags] "ri" LSS_SYSCALL_ARG(flags)
-                              [child_stack] "ri" LSS_SYSCALL_ARG(child_stack)
-                              [parent_tidptr] "ri"
-                              LSS_SYSCALL_ARG(parent_tidptr)
-                              [newtls] "ri" LSS_SYSCALL_ARG(newtls)
-                              [child_tidptr] "ri"
-                              LSS_SYSCALL_ARG(child_tidptr)
-                              [fn] "ri" LSS_SYSCALL_ARG(fn)
+                            : [res] "=r" (__res)
+                            : [nr_clone] "ri" LSS_SYSCALL_ARG(__NR_clone),
+                              [arg] "ri" LSS_SYSCALL_ARG(arg),
+                              [nr_exit] "ri" LSS_SYSCALL_ARG(__NR_exit),
+                              [flags] "ri" LSS_SYSCALL_ARG(flags),
+                              [child_stack] "ri" LSS_SYSCALL_ARG(child_stack),
+                              [parent_tidptr] "ri" LSS_SYSCALL_ARG(parent_tidptr),
+                              [newtls] "ri" LSS_SYSCALL_ARG(newtls),
+                              [child_tidptr] "ri" LSS_SYSCALL_ARG(child_tidptr),
+                              [fn] "ri" LSS_SYSCALL_ARG(fn),
                               [einval] "ri" LSS_SYSCALL_ARG(-EINVAL)
                             : "ctpr1", "b[0]", "b[1]", "b[2]", "b[3]",
                               "b[4]", "b[5]", "pred0");
@@ -4665,7 +4660,7 @@ struct kernel_statx {
       defined(__ARM_ARCH_3__) || defined(__ARM_EABI__) ||                     \
      (defined(__mips__) && _MIPS_SIM == _MIPS_SIM_ABI32) ||                   \
       defined(__PPC__) ||                                                     \
-     (defined(__s390__) && !defined(__s390x__)) || defined(__e2k__)
+     (defined(__s390__) && !defined(__s390x__))
     #define __NR__sigaction   __NR_sigaction
     #define __NR__sigpending  __NR_sigpending
     #define __NR__sigsuspend  __NR_sigsuspend
@@ -4792,6 +4787,9 @@ struct kernel_statx {
       }
       return rc;
     }
+  #elif defined(__e2k__)
+    #define __NR__socketcall  __NR_socketcall
+    #undef __NR_mmap2
   #endif
   #if defined(__s390x__)
     /* On s390x, mmap() arguments are passed in memory. */

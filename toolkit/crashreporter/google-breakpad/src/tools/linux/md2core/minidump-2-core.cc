@@ -79,6 +79,12 @@
   #define ELF_ARCH  EM_AARCH64
 #elif defined(__loongarch__)
   #define ELF_ARCH  EM_LOONGARCH
+#elif defined(__e2k__)
+# ifndef EM_MCST_ELBRUS
+#  error "Error: /usr/include/elf.h not included or has no definition of EM_MCST_ELBRUS"
+#  define EM_MCST_ELBRUS 175
+# endif
+  #define ELF_ARCH  EM_MCST_ELBRUS
 #elif defined(__riscv)
   #define ELF_ARCH  EM_RISCV
 #endif
@@ -329,6 +335,14 @@ struct CrashedProcess {
     uintptr_t stack_addr;
     const uint8_t* stack;
     size_t stack_length;
+#if defined(__e2k__)
+    uintptr_t proc_stack_addr;
+    const uint8_t* proc_stack;
+    size_t proc_stack_length;
+    uintptr_t chain_stack_addr;
+    const uint8_t* chain_stack;
+    size_t chain_stack_length;
+#endif
   };
   std::vector<Thread> threads;
 
@@ -348,6 +362,34 @@ struct CrashedProcess {
   string dynamic_data;
   MDRawDebug debug;
   std::vector<MDRawLinkMap> link_map;
+};
+
+/* NT_FILE note as defined by linux kernel in fs/binfmt_elf.c
+ * is structured as:
+ * long count     -- how many files are mapped
+ * long page_size -- units for file_ofs
+ * array of [COUNT] elements of
+ *   long start
+ *   long end
+ *   long file_ofs
+ * followed by COUNT filenames in ASCII: "FILE1" NUL "FILE2" NUL...
+ * we can re-use the file mappings info
+ */
+struct NtFileNote {
+  NtFileNote()
+  // XXX: we really should source page size from the minidump itself but
+  // I cannot find anywhere in the minidump generation code where this
+  // would be stashed.
+  : page_sz((unsigned long)getpagesize()),
+    filename_count(0),
+    filenames_length(0) {
+  }
+
+  unsigned long page_sz;
+  unsigned long filename_count;
+  std::vector<unsigned long> file_mappings;
+  std::vector<std::string> filenames;
+  size_t filenames_length;
 };
 
 #if defined(__i386__)
@@ -508,6 +550,25 @@ ParseThreadRegisters(CrashedProcess::Thread* thread,
   }
 #undef COPY_REGS
 }
+#elif defined(__e2k__)
+static void
+ParseThreadRegisters(CrashedProcess::Thread* thread,
+                     const MinidumpMemoryRange& range) {
+  const MDRawContextE2K* rawregs = range.GetData<MDRawContextE2K>(0);
+
+  thread->regs.sizeof_struct = sizeof(struct user_regs_struct);
+  thread->regs.usbr = rawregs->usbr;
+  thread->regs.usd_lo = rawregs->usd_lo;
+  thread->regs.usd_hi = rawregs->usd_hi;
+  thread->regs.psp_lo = rawregs->psp_lo;
+  thread->regs.psp_hi = rawregs->psp_hi;
+  thread->regs.cr0_lo = rawregs->cr0_lo;
+  thread->regs.cr0_hi = rawregs->cr0_hi;
+  thread->regs.cr1_lo = rawregs->cr1_lo;
+  thread->regs.cr1_hi = rawregs->cr1_hi;
+  thread->regs.pcsp_lo = rawregs->pcsp_lo;
+  thread->regs.pcsp_hi = rawregs->pcsp_hi;
+}
 #elif defined(__mips__)
 static void
 ParseThreadRegisters(CrashedProcess::Thread* thread,
@@ -558,6 +619,28 @@ ParseThreadList(const Options& options, CrashedProcess* crashinfo,
   for (unsigned i = 0; i < num_threads; ++i) {
     CrashedProcess::Thread thread;
     memset(&thread, 0, sizeof(thread));
+#if defined(__e2k__)
+    const MDRawThreadExtend* rawthread =
+        range.GetArrayElement<MDRawThreadExtend>(sizeof(uint32_t), i);
+    thread.tid = rawthread->thread.thread_id;
+    thread.stack_addr = rawthread->thread.stack.start_of_memory_range;
+    MinidumpMemoryRange stack_range =
+        full_file.Subrange(rawthread->thread.stack.memory);
+    thread.stack = stack_range.data();
+    thread.stack_length = rawthread->thread.stack.memory.data_size;
+    thread.proc_stack_addr = rawthread->e2k_thread.proc_stack.start_of_memory_range;
+    MinidumpMemoryRange proc_stack_range =
+        full_file.Subrange(rawthread->e2k_thread.proc_stack.memory);
+    thread.proc_stack = proc_stack_range.data();
+    thread.proc_stack_length = rawthread->e2k_thread.proc_stack.memory.data_size;
+    thread.chain_stack_addr = rawthread->e2k_thread.chain_stack.start_of_memory_range;
+    MinidumpMemoryRange chain_stack_range =
+        full_file.Subrange(rawthread->e2k_thread.chain_stack.memory);
+    thread.chain_stack = chain_stack_range.data();
+    thread.chain_stack_length = rawthread->e2k_thread.chain_stack.memory.data_size;
+    ParseThreadRegisters(&thread,
+                         full_file.Subrange(rawthread->thread.thread_context));
+#else
     const MDRawThread* rawthread =
         range.GetArrayElement<MDRawThread>(sizeof(uint32_t), i);
     thread.tid = rawthread->thread_id;
@@ -566,10 +649,9 @@ ParseThreadList(const Options& options, CrashedProcess* crashinfo,
         full_file.Subrange(rawthread->stack.memory);
     thread.stack = stack_range.data();
     thread.stack_length = rawthread->stack.memory.data_size;
-
     ParseThreadRegisters(&thread,
                          full_file.Subrange(rawthread->thread_context));
-
+#endif
     crashinfo->threads.push_back(thread);
   }
 }
@@ -610,6 +692,12 @@ ParseSystemInfo(const Options& options, CrashedProcess* crashinfo,
     fprintf(stderr,
             "This version of minidump-2-core only supports ARM (64bit).\n");
     exit(1);
+  }
+#elif defined(__e2k__)
+  if (sysinfo->processor_architecture != MD_CPU_ARCHITECTURE_E2K) {
+    fprintf(stderr,
+            "This version of minidump-2-core only supports E2K (64bit).\n");
+    _exit(1);
   }
 #elif defined(__mips__)
 # if _MIPS_SIM == _ABIO32
@@ -655,6 +743,8 @@ ParseSystemInfo(const Options& options, CrashedProcess* crashinfo,
             ? "MIPS"
             : sysinfo->processor_architecture == MD_CPU_ARCHITECTURE_MIPS64
             ? "MIPS64"
+            : sysinfo->processor_architecture == MD_CPU_ARCHITECTURE_E2K
+            ? "E2K"
             : "???",
             sysinfo->number_of_processors,
             sysinfo->processor_level,
@@ -1082,6 +1172,14 @@ AugmentMappings(const Options& options, CrashedProcess* crashinfo,
     AddDataToMapping(crashinfo,
                      string((char *)thread.stack, thread.stack_length),
                      thread.stack_addr);
+    #ifdef __e2k__
+    AddDataToMapping(crashinfo,
+                     string((char *)thread.proc_stack, thread.proc_stack_length),
+                     thread.proc_stack_addr);
+    AddDataToMapping(crashinfo,
+                     string((char *)thread.chain_stack, thread.chain_stack_length),
+                     thread.chain_stack_addr);
+    #endif
   }
 
   // Create a new link map with information about DSOs. We move this map to
@@ -1201,6 +1299,8 @@ AugmentMappings(const Options& options, CrashedProcess* crashinfo,
     }
     AddDataToMapping(crashinfo, crashinfo->dynamic_data,
                      (uintptr_t)crashinfo->debug.dynamic);
+  } else {
+    fprintf(stderr, "dynamic data empty\n");
   }
 }
 
@@ -1320,19 +1420,40 @@ main(int argc, const char* argv[]) {
   if (!writea(options.out_fd, &ehdr, sizeof(Ehdr)))
     return 1;
 
+  struct NtFileNote nt_file;
+  for (auto iter = crashinfo.mappings.begin();
+       iter != crashinfo.mappings.end(); iter++) {
+    if (iter->second.filename.empty())
+      continue;
+    nt_file.file_mappings.push_back(iter->second.start_address);
+    nt_file.file_mappings.push_back(iter->second.end_address);
+    nt_file.file_mappings.push_back(iter->second.offset);
+    nt_file.filenames.push_back(iter->second.filename);
+    nt_file.filenames_length += iter->second.filename.length() + 1;
+    nt_file.filename_count += 1;
+  }
+  // implementation of NT_FILE note seems to pad alignment by 4 bytes but
+  // keep the header size the true size of the note. so we keep nt_file_align
+  // as separate field.
+  size_t nt_file_data_sz = (2 * sizeof(unsigned long)) +
+      (nt_file.file_mappings.size() * sizeof(unsigned long)) +
+      nt_file.filenames_length;
+  size_t nt_file_align = nt_file_data_sz % 4 == 0 ? 0 : 4 -
+      (nt_file_data_sz % 4);
   size_t offset = sizeof(Ehdr) + ehdr.e_phnum * sizeof(Phdr);
   size_t filesz = sizeof(Nhdr) + 8 + sizeof(prpsinfo) +
-                  // sizeof(Nhdr) + 8 + sizeof(user) +
-                  sizeof(Nhdr) + 8 + crashinfo.auxv_length +
-                  crashinfo.threads.size() * (
-                    (sizeof(Nhdr) + 8 + sizeof(prstatus))
+      // sizeof(Nhdr) + 8 + sizeof(user) +
+      sizeof(Nhdr) + 8 + crashinfo.auxv_length +
+      sizeof(Nhdr) + 8 + nt_file_data_sz + nt_file_align +
+      crashinfo.threads.size() * (
+      (sizeof(Nhdr) + 8 + sizeof(prstatus))
 #if defined(__i386__) || defined(__x86_64__)
-                   + sizeof(Nhdr) + 8 + sizeof(user_fpregs_struct)
+      + sizeof(Nhdr) + 8 + sizeof(user_fpregs_struct)
 #endif
 #if defined(__i386__)
-                   + sizeof(Nhdr) + 8 + sizeof(user_fpxregs_struct)
+      + sizeof(Nhdr) + 8 + sizeof(user_fpxregs_struct)
 #endif
-                    );
+      );
 
   Phdr phdr;
   memset(&phdr, 0, sizeof(Phdr));
@@ -1394,6 +1515,27 @@ main(int argc, const char* argv[]) {
       !writea(options.out_fd, crashinfo.auxv, crashinfo.auxv_length)) {
     return 1;
   }
+
+  nhdr.n_descsz = nt_file_data_sz;
+  nhdr.n_type = NT_FILE;
+  if (!writea(options.out_fd, &nhdr, sizeof(nhdr)) ||
+      !writea(options.out_fd, "CORE\0\0\0\0", 8) ||
+      !writea(options.out_fd,
+      &nt_file.filename_count, sizeof(nt_file.filename_count)) ||
+      !writea(options.out_fd, &nt_file.page_sz, sizeof(nt_file.page_sz))) {
+    return 1;
+  }
+  for (auto iter = nt_file.file_mappings.begin();
+       iter != nt_file.file_mappings.end(); iter++) {
+    if (!writea(options.out_fd, &*iter, sizeof(*iter)))
+      return 1;
+  }
+  for (auto iter = nt_file.filenames.begin();
+       iter != nt_file.filenames.end(); iter++) {
+    if (!writea(options.out_fd, iter->c_str(), iter->length() + 1))
+      return 1;
+  }
+  writea(options.out_fd, "\0\0\0\0", nt_file_align);
 
   for (unsigned i = 0; i < crashinfo.threads.size(); ++i) {
     if (crashinfo.threads[i].tid == crashinfo.crashing_tid) {

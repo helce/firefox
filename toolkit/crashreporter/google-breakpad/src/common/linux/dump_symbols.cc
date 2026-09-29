@@ -111,6 +111,11 @@ using google_breakpad::wasteful_vector;
 #define EM_AARCH64      183
 #endif
 
+// Define E2K ELF architecture if host machine does not include this define
+#ifndef EM_E2K
+#define EM_E2K          175
+#endif
+
 // Old Linux header doesn't define EM_RISCV.
 #ifndef EM_RISCV
 #define EM_RISCV 243
@@ -999,6 +1004,7 @@ const char* ElfArchitecture(const typename ElfClass::Ehdr* elf_header) {
     case EM_SPARC:      return "sparc";
     case EM_SPARCV9:    return "sparcv9";
     case EM_X86_64:     return "x86_64";
+    case EM_E2K:        return "e2k";
     case EM_LOONGARCH:  return "loongarch";
     case EM_RISCV:      return "riscv";
     default: return NULL;

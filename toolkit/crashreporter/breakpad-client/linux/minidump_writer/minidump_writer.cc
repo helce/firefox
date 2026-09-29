@@ -136,7 +136,7 @@ class MinidumpWriter {
       : fd_(minidump_fd),
         path_(minidump_path),
         ucontext_(context ? &context->context : NULL),
-#if !defined(__ARM_EABI__) && !defined(__mips__)
+#if !defined(__ARM_EABI__) && !defined(__mips__) && !defined(__e2k__)
         float_state_(context ? &context->float_state : NULL),
 #endif
         dumper_(dumper),
@@ -379,13 +379,47 @@ class MinidumpWriter {
     return true;
   }
 
+#if defined(__e2k__)
+  bool FillThreadHWStack(MDRawE2kThreadExtend* thread, uintptr_t stack_base,
+                       uintptr_t stack_pointer, bool is_procedure) {
+    uint8_t *stack_copy = NULL;
+    // Move the stack pointer to the top of the page that it's in.
+    const uintptr_t page_size = getpagesize();
+    uintptr_t sp = (stack_pointer + (page_size -1)) & ~(page_size - 1);
+    size_t stack_len = sp - stack_base;
+
+    UntypedMDRVA memory(&minidump_writer_);
+    if (!memory.Allocate(stack_len))
+      return false;
+    stack_copy = reinterpret_cast<uint8_t*>(Alloc(stack_len));
+    dumper_->CopyFromProcess(stack_copy, thread->thread_id,
+        (void *)stack_base, stack_len);
+    memory.Copy(stack_copy, stack_len);
+    if (is_procedure) {
+      thread->proc_stack.start_of_memory_range = stack_base;
+      thread->proc_stack.memory = memory.location();
+      memory_blocks_.push_back(thread->proc_stack);
+    } else {
+      thread->chain_stack.start_of_memory_range = stack_base;
+      thread->chain_stack.memory = memory.location();
+      memory_blocks_.push_back(thread->chain_stack);
+    }
+    return true;
+  }
+#endif
+
   // Write information about the threads.
   bool WriteThreadListStream(MDRawDirectory* dirent) {
     const unsigned num_threads = dumper_->threads().size();
 
     TypedMDRVA<uint32_t> list(&minidump_writer_);
+#if defined(__e2k__)
+    if (!list.AllocateObjectAndArray(num_threads, sizeof(MDRawThreadExtend)))
+      return false;
+#else
     if (!list.AllocateObjectAndArray(num_threads, sizeof(MDRawThread)))
       return false;
+#endif
 
     dirent->stream_type = MD_THREAD_LIST_STREAM;
     dirent->location = list.location();
@@ -411,6 +445,11 @@ class MinidumpWriter {
       MDRawThread thread;
       my_memset(&thread, 0, sizeof(thread));
       thread.thread_id = dumper_->threads()[i];
+#if defined(__e2k__)
+      MDRawE2kThreadExtend e2k_thread;
+      my_memset(&e2k_thread, 0, sizeof(e2k_thread));
+      e2k_thread.thread_id = dumper_->threads()[i];
+#endif
 
       // We have a different source of information for the crashing thread. If
       // we used the actual state of the thread we would find it running in the
@@ -473,10 +512,22 @@ class MinidumpWriter {
         if (!cpu.Allocate())
           return false;
         my_memset(cpu.get(), 0, sizeof(RawContextCPU));
-#if !defined(__ARM_EABI__) && !defined(__mips__)
+#if !defined(__ARM_EABI__) && !defined(__mips__) && !defined(__e2k__)
         UContextReader::FillCPUContext(cpu.get(), ucontext_, float_state_);
 #else
         UContextReader::FillCPUContext(cpu.get(), ucontext_);
+#endif
+#if defined(__e2k__)
+        // Copy procedure stack
+        uintptr_t psb = UContextReader::GetProcStackBase(ucontext_);
+        uintptr_t psp = UContextReader::GetProcStackPointer(ucontext_, psb);
+        if (!FillThreadHWStack(&e2k_thread, psb, psp, true))
+          return false;
+        // Copy chain stack
+        uintptr_t pcsb = UContextReader::GetChainStackBase(ucontext_);
+        uintptr_t pcsp = UContextReader::GetChainStackPointer(ucontext_, pcsb);
+        if (!FillThreadHWStack(&e2k_thread, pcsb, pcsp, false))
+          return false;
 #endif
         thread.thread_context = cpu.location();
         crashing_thread_context_ = cpu.location();
@@ -499,6 +550,16 @@ class MinidumpWriter {
           return false;
         my_memset(cpu.get(), 0, sizeof(RawContextCPU));
         info.FillCPUContext(cpu.get());
+#if defined(__e2k__)
+        // Copy procedure stack
+        uintptr_t psp = info.GetProcStackPointer();
+        if (!FillThreadHWStack(&e2k_thread, info.proc_stack_base, psp, true))
+            return false;
+        // Copy chain stack
+        uintptr_t pcsp = info.GetChainStackPointer();
+        if (!FillThreadHWStack(&e2k_thread, info.chain_stack_base, pcsp, false))
+            return false;
+#endif
         thread.thread_context = cpu.location();
         if (dumper_->threads()[i] == GetCrashThread()) {
           crashing_thread_context_ = cpu.location();
@@ -511,7 +572,14 @@ class MinidumpWriter {
         }
       }
 
+#if defined(__e2k__)
+      MDRawThreadExtend tmp_thread;
+      tmp_thread.thread = thread;
+      tmp_thread.e2k_thread = e2k_thread;
+      list.CopyIndexAfterObject(i, &tmp_thread, sizeof(tmp_thread));
+#else
       list.CopyIndexAfterObject(i, &thread, sizeof(thread));
+#endif
     }
 
     return true;
@@ -958,9 +1026,13 @@ class MinidumpWriter {
     dirent->location.rva = 0;
   }
 
-#if defined(__i386__) || defined(__x86_64__) || defined(__mips__)
+#if defined(__i386__) || defined(__x86_64__) || defined(__mips__) || defined(__e2k__)
   bool WriteCPUInformation(MDRawSystemInfo* sys_info) {
+#if defined(__e2k__)
+    char vendor_id[sizeof(sys_info->cpu.e2k_cpu_info.vendor_id) + 1] = {0};
+#else
     char vendor_id[sizeof(sys_info->cpu.x86_cpu_info.vendor_id) + 1] = {0};
+#endif
     static const char vendor_id_name[] = "vendor_id";
 
     struct CpuInfoEntry {
@@ -973,6 +1045,10 @@ class MinidumpWriter {
       { "model", 0, false },
       { "stepping",  0, false },
       { "cpu family", 0, false },
+#elif defined(__e2k__)
+      { "model", 0, false },
+      { "cpu family", 0, false },
+      { "revision", 0, false },
 #endif
     };
 
@@ -986,6 +1062,12 @@ class MinidumpWriter {
 # else
 #  error "This mips ABI is currently not supported (n32)"
 #endif
+#elif defined(__e2k__)
+# if defined(__mptr32__)
+#   error "E2k 32bit not supported"
+# else
+        MD_CPU_ARCHITECTURE_E2K;
+# endif
 #elif defined(__i386__)
         MD_CPU_ARCHITECTURE_X86;
 #else
@@ -1050,11 +1132,24 @@ class MinidumpWriter {
     sys_info->processor_level      = cpu_info_table[3].value;
     sys_info->processor_revision   = cpu_info_table[1].value << 8 |
                                      cpu_info_table[2].value;
+#elif defined(__e2k__)
+    sys_info->cpu.e2k_cpu_info.model_id = cpu_info_table[1].value;
+    sys_info->cpu.e2k_cpu_info.iset_id = cpu_info_table[2].value;
+    sys_info->cpu.e2k_cpu_info.revision_id = cpu_info_table[3].value;
+    // processor_level packed as [31:16] iset; [15:0] model
+    sys_info->processor_level = cpu_info_table[2].value << 16 |
+                                cpu_info_table[1].value;
+    sys_info->processor_revision   = cpu_info_table[3].value;
 #endif
 
     if (vendor_id[0] != '\0') {
+      #if defined(__e2k__)
+      my_memcpy(sys_info->cpu.e2k_cpu_info.vendor_id, vendor_id,
+                sizeof(sys_info->cpu.e2k_cpu_info.vendor_id));
+      #else
       my_memcpy(sys_info->cpu.x86_cpu_info.vendor_id, vendor_id,
                 sizeof(sys_info->cpu.x86_cpu_info.vendor_id));
+      #endif
     }
     return true;
   }
@@ -1394,7 +1489,7 @@ class MinidumpWriter {
   const char* path_;  // Path to the file where the minidum should be written.
 
   const ucontext_t* const ucontext_;  // also from the signal handler
-#if !defined(__ARM_EABI__) && !defined(__mips__)
+#if !defined(__ARM_EABI__) && !defined(__mips__) && !defined(__e2k__)
   const google_breakpad::fpstate_t* const float_state_;  // ditto
 #endif
   LinuxDumper* dumper_;

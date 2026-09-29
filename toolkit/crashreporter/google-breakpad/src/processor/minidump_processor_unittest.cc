@@ -107,7 +107,7 @@ class MockMinidumpMemoryList : public MinidumpMemoryList {
 
 class MockMinidumpThread : public MinidumpThread {
  public:
-  MockMinidumpThread() : MinidumpThread(NULL) {}
+  MockMinidumpThread() : MinidumpThread(NULL, false) {}
 
   MOCK_CONST_METHOD1(GetThreadID, bool(uint32_t*));
   MOCK_METHOD0(GetContext, MinidumpContext*());

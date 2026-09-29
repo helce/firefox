@@ -112,10 +112,22 @@ bool LinuxCoreDumper::GetThreadInfoByIndex(size_t index, ThreadInfo* info) {
 #elif defined(__mips__)
   stack_pointer =
       reinterpret_cast<uint8_t*>(info->mcontext.gregs[MD_CONTEXT_MIPS_REG_SP]);
+#elif defined(__e2k__)
+  const uint8_t* proc_stack_base;
+  const uint8_t* chain_stack_base;
+  memcpy(&stack_pointer, &info->regs.usd_lo, sizeof(info->regs.usd_lo));
+  memcpy(&proc_stack_base, &info->regs.psp_lo, sizeof(info->regs.psp_lo));
+  memcpy(&chain_stack_base, &info->regs.pcsp_lo, sizeof(info->regs.pcsp_lo));
 #else
 #error "This code hasn't been ported to your platform yet."
 #endif
+#if defined(__e2k__)
+  info->stack_pointer = reinterpret_cast<uintptr_t>(stack_pointer) & 0xffffffffffff; // [rwap base [47: 0]
+  info->proc_stack_base = reinterpret_cast<uintptr_t>(proc_stack_base) & 0xffffffffffff; // [rwap base [47: 0]
+  info->chain_stack_base = reinterpret_cast<uintptr_t>(chain_stack_base) & 0xffffffffffff; // [rwap base [47: 0]
+#else
   info->stack_pointer = reinterpret_cast<uintptr_t>(stack_pointer);
+#endif
   return true;
 }
 

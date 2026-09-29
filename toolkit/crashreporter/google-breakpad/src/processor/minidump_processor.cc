@@ -286,6 +286,33 @@ ProcessResult MinidumpProcessor::Process(
       BPLOG(ERROR) << "No memory region for " << thread_string;
     }
 
+    MinidumpMemoryRegion *thread_procedure_stack = 0;
+    MinidumpMemoryRegion *thread_chain_stack = 0;
+    if (process_state->system_info_.cpu == "e2k") {
+      thread_chain_stack = thread->GetChainStack();
+      if (!thread_chain_stack && memory_list) {
+        uint64_t start_chain_stack_range = thread->GetStartOfChainStackRange();
+        if (start_chain_stack_range) {
+          thread_chain_stack = memory_list->GetMemoryRegionForAddress(
+              start_chain_stack_range);
+        }
+      }
+      thread_procedure_stack = thread->GetProcedureStack();
+      if (!thread_procedure_stack && memory_list) {
+        uint64_t start_procedure_stack_range = thread->GetStartOfProcedureStackRange();
+        if (start_procedure_stack_range) {
+          thread_procedure_stack = memory_list->GetMemoryRegionForAddress(
+              start_procedure_stack_range);
+        }
+      }
+      if (!thread_chain_stack) {
+        BPLOG(ERROR) << "No chain stack for " << thread_string;
+      }
+      if (!thread_procedure_stack) {
+        BPLOG(ERROR) << "No procedure stack for " << thread_string;
+      }
+    }
+
     // Use process_state->modules_ instead of module_list, because the
     // |modules| argument will be used to populate the |module| fields in
     // the returned StackFrame objects, which will be placed into the
@@ -298,6 +325,8 @@ ProcessResult MinidumpProcessor::Process(
         Stackwalker::StackwalkerForCPU(process_state->system_info(),
                                        context,
                                        thread_memory,
+                                       thread_chain_stack,
+                                       thread_procedure_stack,
                                        process_state->modules_,
                                        process_state->unloaded_modules_,
                                        frame_symbolizer_));
@@ -602,6 +631,23 @@ bool MinidumpProcessor::GetCPUInfo(Minidump *dump, SystemInfo *info) {
     }
     case MD_CPU_ARCHITECTURE_MIPS64: {
       info->cpu = "mips64";
+      break;
+    }
+
+    case MD_CPU_ARCHITECTURE_E2K: {
+      info->cpu = "e2k";
+      const string* cpu_vendor = system_info->GetCPUVendor();
+      if (cpu_vendor) {
+        info->cpu_info = *cpu_vendor;
+       info->cpu_info.append(" ");
+      }
+
+      char e2k_info[24];
+      snprintf(e2k_info, sizeof(e2k_info), " v%u model %u, revision %u",
+               raw_system_info->cpu.e2k_cpu_info.iset_id,
+               raw_system_info->cpu.e2k_cpu_info.model_id,
+               raw_system_info->cpu.e2k_cpu_info.revision_id);
+      info->cpu_info.append(e2k_info);
       break;
     }
 

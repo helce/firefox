@@ -96,6 +96,8 @@ bool IsContextSizeUnique(uint32_t context_size) {
     num_matching_contexts++;
   if (context_size == sizeof(MDRawContextMIPS))
     num_matching_contexts++;
+  if (context_size == sizeof(MDRawContextE2K))
+    num_matching_contexts++;
   return num_matching_contexts == 1;
 }
 
@@ -1145,6 +1147,55 @@ bool MinidumpContext::Read(uint32_t expected_size) {
         break;
       }
 
+      case MD_CONTEXT_E2K: {
+        if (expected_size != sizeof(MDRawContextE2K)) {
+          BPLOG(ERROR) << "MinidumpContext e2k size mismatch, " <<
+                       expected_size << " != " << sizeof(MDRawContextE2K);
+          return false;
+        }
+
+        scoped_ptr<MDRawContextE2K> context_e2k(new MDRawContextE2K());
+
+        // Set the context_flags member, which has already been read, and
+        // read the rest of the structure beginning with the first member
+        // after context_flags.
+        context_e2k->context_flags = context_flags;
+
+        size_t flags_size = sizeof(context_e2k->context_flags);
+        uint8_t* context_after_flags =
+            reinterpret_cast<uint8_t*>(context_e2k.get()) + flags_size;
+        if (!minidump_->ReadBytes(context_after_flags,
+                                  sizeof(MDRawContextE2K) - flags_size)) {
+          BPLOG(ERROR) << "MinidumpContext could not read E2K context";
+          return false;
+        }
+
+        // Do this after reading the entire MDRawContext structure because
+        // GetSystemInfo may seek minidump to a new position.
+        if (!CheckAgainstSystemInfo(cpu_type)) {
+          BPLOG(ERROR) << "MinidumpContext E2K does not match system info";
+          return false;
+        }
+
+        if (minidump_->swap()) {
+          // context_e2k->context_flags was already swapped.
+          Swap(&context_e2k->usbr);
+          Swap(&context_e2k->usd_lo);
+          Swap(&context_e2k->usd_hi);
+          Swap(&context_e2k->psp_lo);
+          Swap(&context_e2k->psp_hi);
+          Swap(&context_e2k->cr0_lo);
+          Swap(&context_e2k->cr0_hi);
+          Swap(&context_e2k->cr1_lo);
+          Swap(&context_e2k->cr1_hi);
+          Swap(&context_e2k->pcsp_lo);
+          Swap(&context_e2k->pcsp_hi);
+        }
+        SetContextE2K(context_e2k.release());
+
+        break;
+      }
+
       default: {
         // Unknown context type - Don't log as an error yet. Let the
         // caller work that out.
@@ -1236,6 +1287,11 @@ bool MinidumpContext::CheckAgainstSystemInfo(uint32_t context_cpu_type) {
 
     case MD_CONTEXT_MIPS64:
       if (system_info_cpu_type == MD_CPU_ARCHITECTURE_MIPS64)
+        return_value = true;
+      break;
+
+    case MD_CONTEXT_E2K:
+      if (system_info_cpu_type == MD_CPU_ARCHITECTURE_E2K)
         return_value = true;
       break;
   }
@@ -1497,16 +1553,22 @@ void MinidumpMemoryRegion::SetPrintMode(bool hexdump,
 //
 
 
-MinidumpThread::MinidumpThread(Minidump* minidump)
+MinidumpThread::MinidumpThread(Minidump* minidump, bool ext)
     : MinidumpObject(minidump),
+      thread_extend(ext),
       thread_(),
+      e2k_thread_(),
       memory_(NULL),
+      chain_stack_(NULL),
+      procedure_stack_(NULL),
       context_(NULL) {
 }
 
 
 MinidumpThread::~MinidumpThread() {
   delete memory_;
+  delete chain_stack_;
+  delete procedure_stack_;
   delete context_;
 }
 
@@ -1550,6 +1612,54 @@ bool MinidumpThread::Read() {
     memory_->SetDescriptor(&thread_.stack);
   }
 
+  if (thread_extend) {
+    delete chain_stack_;
+    chain_stack_ = NULL;
+    delete procedure_stack_;
+    procedure_stack_ = NULL;
+
+    if (!minidump_->ReadBytes(&e2k_thread_, sizeof(e2k_thread_))) {
+      BPLOG(ERROR) << "MinidumpThread cannot read e2k extended thread";
+      return false;
+    }
+
+    if (minidump_->swap()) {
+      Swap(&e2k_thread_.thread_id);
+      Swap(&e2k_thread_.proc_stack);
+      Swap(&e2k_thread_.chain_stack);
+    }
+
+    // Check for base + size overflow or undersize.
+    if (e2k_thread_.proc_stack.memory.rva == 0 ||
+        e2k_thread_.proc_stack.memory.data_size == 0 ||
+        e2k_thread_.proc_stack.memory.data_size > numeric_limits<uint64_t>::max() -
+                                         e2k_thread_.proc_stack.start_of_memory_range) {
+      // This is ok, but log an error anyway.
+      BPLOG(ERROR) << "MinidumpThread has a procedure stack region problem, " <<
+                      HexString(e2k_thread_.proc_stack.start_of_memory_range) << "+" <<
+                      HexString(e2k_thread_.proc_stack.memory.data_size) <<
+                      ", RVA 0x" << HexString(e2k_thread_.proc_stack.memory.rva);
+    } else {
+      procedure_stack_ = new MinidumpMemoryRegion(minidump_);
+      procedure_stack_->SetDescriptor(&e2k_thread_.proc_stack);
+    }
+
+    // Check for base + size overflow or undersize.
+    if (e2k_thread_.chain_stack.memory.rva == 0 ||
+        e2k_thread_.chain_stack.memory.data_size == 0 ||
+        e2k_thread_.chain_stack.memory.data_size > numeric_limits<uint64_t>::max() -
+                                         e2k_thread_.chain_stack.start_of_memory_range) {
+      // This is ok, but log an error anyway.
+      BPLOG(ERROR) << "MinidumpThread has a chain stack region problem, " <<
+                      HexString(e2k_thread_.chain_stack.start_of_memory_range) << "+" <<
+                      HexString(e2k_thread_.chain_stack.memory.data_size) <<
+                      ", RVA 0x" << HexString(e2k_thread_.chain_stack.memory.rva);
+    } else {
+      chain_stack_ = new MinidumpMemoryRegion(minidump_);
+      chain_stack_->SetDescriptor(&e2k_thread_.chain_stack);
+    }
+  }
+
   valid_ = true;
   return true;
 }
@@ -1561,6 +1671,24 @@ uint64_t MinidumpThread::GetStartOfStackMemoryRange() const {
   }
 
   return thread_.stack.start_of_memory_range;
+}
+
+uint64_t MinidumpThread::GetStartOfChainStackRange() const {
+  if (!valid_) {
+    BPLOG(ERROR) << "GetStartOfChainStackRange: Invalid MinidumpThread";
+    return 0;
+  }
+
+  return e2k_thread_.chain_stack.start_of_memory_range;
+}
+
+uint64_t MinidumpThread::GetStartOfProcedureStackRange() const {
+  if (!valid_) {
+    BPLOG(ERROR) << "GetStartOfProcedureStackRange: Invalid MinidumpThread";
+    return 0;
+  }
+
+  return e2k_thread_.proc_stack.start_of_memory_range;
 }
 
 MinidumpMemoryRegion* MinidumpThread::GetMemory() {
@@ -1631,6 +1759,23 @@ uint32_t MinidumpThread::GetLastError() {
   return error;
 }
 
+MinidumpMemoryRegion* MinidumpThread::GetChainStack() {
+  if (!valid_) {
+    BPLOG(ERROR) << "Invalid MinidumpThread for GetChainStack";
+    return NULL;
+  }
+
+  return chain_stack_;
+}
+
+MinidumpMemoryRegion* MinidumpThread::GetProcedureStack() {
+  if (!valid_) {
+    BPLOG(ERROR) << "Invalid MinidumpThread for GetProcedureStack";
+    return NULL;
+  }
+
+  return procedure_stack_;
+}
 
 
 MinidumpContext* MinidumpThread::GetContext() {
@@ -1739,6 +1884,7 @@ MinidumpThreadList::~MinidumpThreadList() {
 
 
 bool MinidumpThreadList::Read(uint32_t expected_size) {
+  bool is_e2k_thread = false;
   // Invalidate cached data.
   id_to_thread_map_.clear();
   delete threads_;
@@ -1778,6 +1924,11 @@ bool MinidumpThreadList::Read(uint32_t expected_size) {
                         "bytes";
         return false;
       }
+    // may be e2k extended thread
+    } else if (expected_size == sizeof(thread_count) + thread_count *
+                                sizeof(MDRawThreadExtend)) {
+      BPLOG(INFO) << "MinidumpThreadList with e2k extended threads.";
+      is_e2k_thread = true;
     } else {
       BPLOG(ERROR) << "MinidumpThreadList size mismatch, " << expected_size <<
                     " != " << sizeof(thread_count) +
@@ -1795,7 +1946,7 @@ bool MinidumpThreadList::Read(uint32_t expected_size) {
 
   if (thread_count != 0) {
     scoped_ptr<MinidumpThreads> threads(
-        new MinidumpThreads(thread_count, MinidumpThread(minidump_)));
+        new MinidumpThreads(thread_count, MinidumpThread(minidump_, is_e2k_thread)));
 
     for (unsigned int thread_index = 0;
          thread_index < thread_count;
@@ -3586,6 +3737,10 @@ string MinidumpSystemInfo::GetCPU() {
       cpu = "arm64";
       break;
 
+    case MD_CPU_ARCHITECTURE_E2K:
+      cpu = "e2k";
+      break;
+
     default:
       BPLOG(ERROR) << "MinidumpSystemInfo unknown CPU for architecture " <<
                       HexString(system_info_.processor_architecture);
@@ -3621,7 +3776,8 @@ const string* MinidumpSystemInfo::GetCPUVendor() {
   // CPU vendor information can only be determined from x86 minidumps.
   if (!cpu_vendor_ &&
       (system_info_.processor_architecture == MD_CPU_ARCHITECTURE_X86 ||
-       system_info_.processor_architecture == MD_CPU_ARCHITECTURE_X86_WIN64)) {
+       system_info_.processor_architecture == MD_CPU_ARCHITECTURE_X86_WIN64 ||
+       system_info_.processor_architecture == MD_CPU_ARCHITECTURE_E2K)) {
     char cpu_vendor_string[13];
     snprintf(cpu_vendor_string, sizeof(cpu_vendor_string),
              "%c%c%c%c%c%c%c%c%c%c%c%c",
@@ -5474,6 +5630,9 @@ bool Minidump::GetContextCPUFlagsFromSystemInfo(uint32_t *context_cpu_flags) {
         break;
       case MD_CPU_ARCHITECTURE_SPARC:
         *context_cpu_flags = MD_CONTEXT_SPARC;
+        break;
+      case MD_CPU_ARCHITECTURE_E2K:
+        *context_cpu_flags = MD_CONTEXT_E2K;
         break;
       case MD_CPU_ARCHITECTURE_UNKNOWN:
         *context_cpu_flags = 0;

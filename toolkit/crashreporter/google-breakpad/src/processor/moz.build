@@ -52,6 +52,7 @@ UNIFIED_SOURCES += [
     'stackwalker_amd64.cc',
     'stackwalker_arm.cc',
     'stackwalker_arm64.cc',
+    'stackwalker_e2k.cc',
     'stackwalker_mips.cc',
     'stackwalker_ppc.cc',
     'stackwalker_ppc64.cc',

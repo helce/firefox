@@ -140,6 +140,15 @@ const MDRawContextMIPS* DumpContext::GetContextMIPS() const {
   return context_.ctx_mips;
 }
 
+const MDRawContextE2K* DumpContext::GetContextE2K() const {
+  if (GetContextCPU() != MD_CONTEXT_E2K) {
+    BPLOG(ERROR) << "DumpContext cannot get e2k context";
+    return NULL;
+  }
+
+  return context_.e2k;
+}
+
 bool DumpContext::GetInstructionPointer(uint64_t* ip) const {
   BPLOG_IF(ERROR, !ip) << "DumpContext::GetInstructionPointer requires |ip|";
   assert(ip);
@@ -175,6 +184,9 @@ bool DumpContext::GetInstructionPointer(uint64_t* ip) const {
   case MD_CONTEXT_MIPS:
   case MD_CONTEXT_MIPS64:
     *ip = GetContextMIPS()->epc;
+    break;
+  case MD_CONTEXT_E2K:
+    *ip = GetContextE2K()->cr0_hi & 0xfffffffffff8; // [VA_MSB:0] 8-aligned;
     break;
   default:
     // This should never happen.
@@ -220,6 +232,8 @@ bool DumpContext::GetStackPointer(uint64_t* sp) const {
   case MD_CONTEXT_MIPS64:
     *sp = GetContextMIPS()->iregs[MD_CONTEXT_MIPS_REG_SP];
     break;
+  case MD_CONTEXT_E2K:
+    *sp = GetContextE2K()->usd_lo & 0xffffffffffff; // [rwap base [47: 0]
   default:
     // This should never happen.
     BPLOG(ERROR) << "Unknown CPU architecture in GetStackPointer";
@@ -264,6 +278,10 @@ void DumpContext::SetContextMIPS(MDRawContextMIPS* ctx_mips) {
   context_.ctx_mips = ctx_mips;
 }
 
+void DumpContext::SetContextE2K(MDRawContextE2K* e2k) {
+  context_.e2k = e2k;
+}
+
 void DumpContext::FreeContext() {
   switch (GetContextCPU()) {
     case MD_CONTEXT_X86:
@@ -297,6 +315,10 @@ void DumpContext::FreeContext() {
     case MD_CONTEXT_MIPS:
     case MD_CONTEXT_MIPS64:
       delete context_.ctx_mips;
+      break;
+
+    case MD_CONTEXT_E2K:
+      delete context_.e2k;
       break;
 
     default:
@@ -652,6 +674,25 @@ void DumpContext::Print() {
              context_mips->float_save.fpcsr);
       printf("  float_save.fir       = 0x%" PRIx32 "\n",
              context_mips->float_save.fir);
+      break;
+    }
+
+    case MD_CONTEXT_E2K: {
+      const MDRawContextE2K* context_e2k = GetContextE2K();
+      printf("MDRawContextE2K\n");
+      printf("  context_flags       = 0x%" PRIx32 "\n",
+             context_e2k->context_flags);
+      printf("  usbr                = 0x%" PRIx64 "\n", context_e2k->usbr);
+      printf("  usd_lo              = 0x%" PRIx64 "\n", context_e2k->usd_lo);
+      printf("  usd_hi              = 0x%" PRIx64 "\n", context_e2k->usd_hi);
+      printf("  psp_lo              = 0x%" PRIx64 "\n", context_e2k->psp_lo);
+      printf("  psp_hi              = 0x%" PRIx64 "\n", context_e2k->psp_hi);
+      printf("  cr0_lo              = 0x%" PRIx64 "\n", context_e2k->cr0_lo);
+      printf("  cr0_hi              = 0x%" PRIx64 "\n", context_e2k->cr0_hi);
+      printf("  cr1_lo              = 0x%" PRIx64 "\n", context_e2k->cr1_lo);
+      printf("  cr1_hi              = 0x%" PRIx64 "\n", context_e2k->cr1_hi);
+      printf("  pcsp_lo             = 0x%" PRIx64 "\n", context_e2k->pcsp_lo);
+      printf("  pcsp_hi             = 0x%" PRIx64 "\n", context_e2k->pcsp_hi);
       break;
     }
 

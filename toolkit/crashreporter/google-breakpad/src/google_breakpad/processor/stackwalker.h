@@ -88,6 +88,8 @@ class Stackwalker {
      const SystemInfo* system_info,
      DumpContext* context,
      MemoryRegion* memory,
+     MemoryRegion* chain_stack,
+     MemoryRegion* procedure_stack,
      const CodeModules* modules,
      const CodeModules* unloaded_modules,
      StackFrameSymbolizer* resolver_helper);
@@ -194,6 +196,9 @@ class Stackwalker {
   // The stack memory to walk.  Subclasses will require this region to
   // get information from the stack.
   MemoryRegion* memory_;
+  // E2k hw stacks
+  MemoryRegion* chain_stack_;
+  MemoryRegion* procedure_stack_;
 
   // A list of modules, for populating each StackFrame's module information.
   // This field is optional and may be NULL.
