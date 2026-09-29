@@ -173,13 +173,14 @@ fn thread_list_from_parent() {
     // assert_eq!(matching_threads, num_of_threads);
 }
 
-#[cfg(not(target_os = "android"))]
+#[cfg(not(any(target_arch = "e2k", target_os = "android")))]
 #[test]
 // Ensure that the linux-gate VDSO is included in the mapping list.
 fn mappings_include_linux_gate() {
     spawn_child("mappings_include_linux_gate", &[]);
 }
 
+#[cfg(not(target_arch = "e2k"))]
 #[test]
 fn linux_gate_mapping_id() {
     disabled_on_ci_and_android!();

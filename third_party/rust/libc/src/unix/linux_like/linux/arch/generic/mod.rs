@@ -333,4 +333,14 @@ cfg_if! {
     }
 }
 
+cfg_if! {
+    if #[cfg(target_arch = "e2k")] {
+        pub const RLIMIT_ARCH_NUM: crate::__rlimit_resource_t = 10001;
+        pub const RLIMIT_P_STACK: crate::__rlimit_resource_t = 10001;
+        pub const RLIMIT_PC_STACK: crate::__rlimit_resource_t = 10002;
+        pub const RLIMIT_NLIMITS_EXT: crate::__rlimit_resource_t = 2;
+        pub const RLIM_NLIMITS_EXT: crate::__rlimit_resource_t = 2;
+    }
+}
+
 pub const RLIM_INFINITY: crate::rlim_t = !0;

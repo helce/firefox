@@ -96,6 +96,7 @@ mod tests {
         // Check that various fields match expected types.
         assert_eq!(some_stat.st_mode, 0 as RawMode);
         assert_eq!(some_stat.st_dev, 0 as Dev);
+        #[cfg(not(target_arch = "e2k"))]
         assert_eq!(some_stat.st_rdev, 0 as Dev);
         assert_eq!(some_stat.st_uid, 0 as crate::ugid::RawUid);
         assert_eq!(some_stat.st_gid, 0 as crate::ugid::RawGid);
@@ -136,6 +137,7 @@ mod tests {
                     linux_raw,
                     not(any(
                         target_arch = "aarch64",
+                        target_arch = "e2k",
                         target_arch = "powerpc64",
                         target_arch = "riscv64",
                         target_arch = "s390x"
@@ -143,13 +145,21 @@ mod tests {
                 ))]
                 check_renamed_struct_field!(Stat, stat, __pad0);
                 check_renamed_struct_field!(Stat, stat, st_rdev);
-                #[cfg(all(linux_raw, not(any(target_arch = "powerpc64", target_arch = "x86_64"))))]
+                #[cfg(all(
+                    linux_raw,
+                    not(any(
+                        target_arch = "powerpc64",
+                        target_arch = "x86_64",
+                        target_arch = "e2k"
+                    ))
+                ))]
                 check_renamed_struct_field!(Stat, stat, __pad1);
                 check_renamed_struct_field!(Stat, stat, st_size);
                 check_renamed_struct_field!(Stat, stat, st_blksize);
                 #[cfg(all(
                     linux_raw,
                     not(any(
+                        target_arch = "e2k",
                         target_arch = "powerpc64",
                         target_arch = "s390x",
                         target_arch = "x86_64"
@@ -176,19 +186,27 @@ mod tests {
                     linux_raw,
                     not(any(
                         target_arch = "aarch64",
+                        target_arch = "e2k",
                         target_arch = "powerpc64",
                         target_arch = "riscv64"
                     ))
                 ))]
                 check_renamed_struct_field!(Stat, stat, __unused);
-                #[cfg(all(linux_raw, not(any(target_arch = "s390x", target_arch = "x86_64"))))]
+                #[cfg(all(
+                    linux_raw,
+                    not(any(target_arch = "s390x", target_arch = "x86_64", target_arch = "e2k"))
+                ))]
                 check_renamed_struct_field!(Stat, stat, __unused4);
-                #[cfg(all(linux_raw, not(any(target_arch = "s390x", target_arch = "x86_64"))))]
+                #[cfg(all(
+                    linux_raw,
+                    not(any(target_arch = "s390x", target_arch = "x86_64", target_arch = "e2k"))
+                ))]
                 check_renamed_struct_field!(Stat, stat, __unused5);
                 #[cfg(all(
                     linux_raw,
                     not(any(
                         target_arch = "aarch64",
+                        target_arch = "e2k",
                         target_arch = "riscv64",
                         target_arch = "s390x",
                         target_arch = "x86_64"

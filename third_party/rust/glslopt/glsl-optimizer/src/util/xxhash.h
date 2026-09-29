@@ -987,7 +987,8 @@ typedef XXH64_hash_t xxh_u64;
    || !(defined(__x86_64__) || defined(_M_X64) || defined(_M_AMD64) /* x86-64 */ \
      || defined(_M_ARM64) || defined(__aarch64__) || defined(__arm64__) /* aarch64 */ \
      || defined(__PPC64__) || defined(__PPC64LE__) || defined(__ppc64__) || defined(__powerpc64__) /* ppc64 */ \
-     || defined(__mips64__) || defined(__mips64)) /* mips64 */ \
+     || defined(__mips64__) || defined(__mips64) /* mips64 */ \
+     || defined(__e2k__)) /* e2k */ \
    || (!defined(SIZE_MAX) || SIZE_MAX < ULLONG_MAX) /* check limits */
 #    define XXH_REROLL_XXH64 1
 #  else

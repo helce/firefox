@@ -35,6 +35,7 @@ enum Context {
 impl Context {
     pub fn minidump_writer(&self, pid: Pid) -> MinidumpWriterConfig {
         let mut mw = MinidumpWriterConfig::new(pid, pid);
+        #[cfg(not(target_arch = "e2k"))]
         if self == &Context::With {
             let crash_context = get_crash_context(pid);
             mw.set_crash_context(crash_context);
@@ -43,6 +44,7 @@ impl Context {
     }
 }
 
+#[cfg(not(target_arch = "e2k"))]
 fn get_ucontext() -> Result<crash_context::ucontext_t> {
     let mut context = std::mem::MaybeUninit::uninit();
     unsafe {
@@ -53,10 +55,11 @@ fn get_ucontext() -> Result<crash_context::ucontext_t> {
     }
 }
 
+#[cfg(not(target_arch = "e2k"))]
 fn get_crash_context(tid: Pid) -> CrashContext {
     let siginfo: libc::signalfd_siginfo = unsafe { std::mem::zeroed() };
     let context = get_ucontext().expect("Failed to get ucontext");
-    #[cfg(not(target_arch = "arm"))]
+    #[cfg(not(any(target_arch = "arm", target_arch = "e2k")))]
     let float_state = unsafe { std::mem::zeroed() };
     CrashContext {
         inner: crash_context::CrashContext {
@@ -64,7 +67,7 @@ fn get_crash_context(tid: Pid) -> CrashContext {
             pid: std::process::id() as _,
             tid,
             context,
-            #[cfg(not(target_arch = "arm"))]
+            #[cfg(not(any(target_arch = "arm", target_arch = "e2k")))]
             float_state,
         },
     }
@@ -83,6 +86,7 @@ macro_rules! contextual_test {
                 test(Context::Without)
             }
 
+            #[cfg(not(target_arch = "e2k"))]
             #[test]
             $(#[$attr])?
             fn with_context() {
@@ -450,9 +454,14 @@ contextual_test! {
 
         // Read dump file and check its contents. There should be a truncated minidump available
         let dump = Minidump::read_path(tmpfile.path()).expect("Failed to read minidump");
-        // Should be there
-        let _: MinidumpThreadList = dump.get_stream().expect("Couldn't find MinidumpThreadList");
-        let _: MinidumpModuleList = dump.get_stream().expect("Couldn't find MinidumpThreadList");
+
+        // if there is no system_info it will fail to get do we have extended thread or not
+        #[cfg(not(target_arch = "e2k"))]
+        {
+            // Should be there
+            let _: MinidumpThreadList = dump.get_stream().expect("Couldn't find MinidumpThreadList");
+            let _: MinidumpModuleList = dump.get_stream().expect("Couldn't find MinidumpThreadList");
+        }
 
         // Should be missing:
         assert!(dump.get_stream::<MinidumpMemoryList>().is_err());

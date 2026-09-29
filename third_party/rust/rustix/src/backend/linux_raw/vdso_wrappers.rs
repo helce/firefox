@@ -12,6 +12,7 @@
 
 #[cfg(target_arch = "x86")]
 use super::reg::{ArgReg, RetReg, SyscallNumber, A0, A1, A2, A3, A4, A5, R0};
+#[cfg(not(target_arch = "e2k"))]
 use super::vdso;
 #[cfg(target_arch = "x86")]
 use core::arch::global_asm;
@@ -496,6 +497,8 @@ fn minimal_init() {
 fn init() {
     minimal_init();
 
+    // No vdso on e2k, use rustix_clock_gettime_via_syscall instead
+    #[cfg(not(target_arch = "e2k"))]
     if let Some(vdso) = vdso::Vdso::new() {
         #[cfg(feature = "time")]
         {

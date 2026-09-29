@@ -26,6 +26,7 @@
 #[cfg_attr(target_arch = "aarch64", path = "aarch64.rs")]
 #[cfg_attr(all(target_arch = "arm", not(thumb_mode)), path = "arm.rs")]
 #[cfg_attr(all(target_arch = "arm", thumb_mode), path = "thumb.rs")]
+#[cfg_attr(target_arch = "e2k", path = "e2k.rs")]
 #[cfg_attr(target_arch = "mips", path = "mips.rs")]
 #[cfg_attr(target_arch = "mips32r6", path = "mips32r6.rs")]
 #[cfg_attr(target_arch = "mips64", path = "mips64.rs")]
@@ -43,6 +44,7 @@ pub(in crate::backend) mod asm;
 #[cfg(any(
     target_arch = "arm",
     target_arch = "aarch64",
+    target_arch = "e2k",
     target_arch = "mips",
     target_arch = "mips32r6",
     target_arch = "mips64",

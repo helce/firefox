@@ -805,6 +805,7 @@ s! {
             target_arch = "aarch64",
             target_arch = "riscv64",
             target_arch = "riscv32",
+            target_arch = "e2k",
             target_arch = "loongarch64"
         ),
         repr(align(4))
@@ -821,6 +822,7 @@ s! {
             target_arch = "aarch64",
             target_arch = "riscv64",
             target_arch = "riscv32",
+            target_arch = "e2k",
             target_arch = "loongarch64"
         )),
         repr(align(8))

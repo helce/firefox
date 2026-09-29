@@ -100,10 +100,10 @@ bitflags! {
         /// `MAP_STACK`
         const STACK = linux_raw_sys::general::MAP_STACK;
         /// `MAP_SYNC` (since Linux 4.15)
-        #[cfg(not(any(target_arch = "mips", target_arch = "mips32r6", target_arch = "mips64", target_arch = "mips64r6")))]
+        #[cfg(not(any(target_arch = "mips", target_arch = "mips32r6", target_arch = "mips64", target_arch = "mips64r6", target_arch = "e2k")))]
         const SYNC = linux_raw_sys::general::MAP_SYNC;
         /// `MAP_UNINITIALIZED`
-        #[cfg(not(any(target_arch = "mips", target_arch = "mips32r6", target_arch = "mips64", target_arch = "mips64r6")))]
+        #[cfg(not(any(target_arch = "mips", target_arch = "mips32r6", target_arch = "mips64", target_arch = "mips64r6", target_arch = "e2k")))]
         const UNINITIALIZED = linux_raw_sys::general::MAP_UNINITIALIZED;
         /// `MAP_DROPPABLE`
         const DROPPABLE = linux_raw_sys::general::MAP_DROPPABLE;

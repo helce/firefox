@@ -759,6 +759,7 @@ pub const KERNEL_SIGRTMAX: i32 = {
     // Use the actual `SIGRTMAX` value on platforms which define it.
     #[cfg(not(any(
         target_arch = "arm",
+        target_arch = "e2k",
         target_arch = "s390x",
         target_arch = "x86",
         target_arch = "x86_64",
@@ -783,6 +784,7 @@ pub const KERNEL_SIGRTMAX: i32 = {
     // Here, we use the Linux kernel header value.
     #[cfg(any(
         target_arch = "arm",
+        target_arch = "e2k",
         target_arch = "s390x",
         target_arch = "x86",
         target_arch = "x86_64",

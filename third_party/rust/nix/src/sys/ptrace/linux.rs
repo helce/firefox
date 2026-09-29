@@ -19,6 +19,7 @@ pub type AddressType = *mut ::libc::c_void;
         ),
         all(target_arch = "x86", target_env = "gnu"),
         all(target_arch = "riscv64", target_env = "gnu"),
+        all(target_arch = "e2k", target_env = "gnu"),
     ),
 ))]
 use libc::user_regs_struct;
@@ -59,6 +60,7 @@ libc_enum! {
                                                target_arch = "mips64",
                                                target_arch = "mips64r6",
                                                target_arch = "x86_64",
+                                               target_arch = "e2k",
                                                target_pointer_width = "32"))))]
         PTRACE_GETREGS,
         #[cfg(any(all(target_os = "android", target_pointer_width = "32"),
@@ -69,6 +71,7 @@ libc_enum! {
                                                target_arch = "mips64",
                                                target_arch = "mips64r6",
                                                target_arch = "x86_64",
+                                               target_arch = "e2k",
                                                target_pointer_width = "32"))))]
         PTRACE_SETREGS,
         #[cfg(any(all(target_os = "android", target_pointer_width = "32"),
@@ -138,7 +141,8 @@ libc_enum! {
         #[cfg(all(target_os = "linux", not(any(target_arch = "mips",
                                                target_arch = "mips32r6",
                                                target_arch = "mips64",
-                                               target_arch = "mips64r6"))))]
+                                               target_arch = "mips64r6",
+                                               target_arch = "e2k"))))]
         PTRACE_PEEKSIGINFO,
         #[cfg(all(target_os = "linux", target_env = "gnu",
                   any(target_arch = "x86", target_arch = "x86_64")))]
@@ -366,6 +370,22 @@ pub fn getregs(pid: Pid) -> Result<user_regs_struct> {
 /// [ptrace(2)]: https://www.man7.org/linux/man-pages/man2/ptrace.2.html
 #[cfg(all(
     target_os = "linux",
+    target_env = "gnu",
+    target_arch = "e2k"
+))]
+pub fn getregs(pid: Pid) -> Result<user_regs_struct> {
+    ptrace_get_regs_data(Request::PTRACE_GETREGS, pid)
+}
+
+/// Get user registers, as with `ptrace(PTRACE_GETREGS, ...)`
+///
+/// Note that since `PTRACE_GETREGS` are not available on all platforms (as in [ptrace(2)]),
+/// `ptrace(PTRACE_GETREGSET, pid, NT_PRSTATUS, ...)` is used instead to achieve the same effect
+/// on aarch64 and riscv64.
+///
+/// [ptrace(2)]: https://www.man7.org/linux/man-pages/man2/ptrace.2.html
+#[cfg(all(
+    target_os = "linux",
     any(
         all(
             target_arch = "aarch64",
@@ -426,7 +446,8 @@ pub fn getregset<S: RegisterSet>(pid: Pid) -> Result<S::Regs> {
             target_arch = "x86_64",
             any(target_env = "gnu", target_env = "musl")
         ),
-        all(target_arch = "x86", target_env = "gnu")
+        all(target_arch = "x86", target_env = "gnu"),
+        all(target_arch = "e2k", target_env = "gnu")
     )
 ))]
 pub fn setregs(pid: Pid, regs: user_regs_struct) -> Result<()> {
@@ -506,6 +527,32 @@ fn ptrace_get_data<T>(request: Request, pid: Pid) -> Result<T> {
             libc::pid_t::from(pid),
             ptr::null_mut::<T>(),
             data.as_mut_ptr(),
+        )
+    };
+    Errno::result(res)?;
+    Ok(unsafe { data.assume_init() })
+}
+
+/// Function for ptrace request that return values from the data field.
+/// Specific e2k version for Request::PTRACE_GETREGS. It needs initialization
+/// of field sizeof_struct of user_regs_struct with its size to work properly.
+#[cfg(target_arch = "e2k")]
+fn ptrace_get_regs_data(
+    request: Request,
+    pid: Pid,
+) -> Result<user_regs_struct> {
+    let mut data = mem::MaybeUninit::<user_regs_struct>::uninit();
+    let ptr = data.as_mut_ptr();
+    unsafe {
+        ptr::addr_of_mut!((*ptr).sizeof_struct)
+            .write(mem::size_of::<user_regs_struct>() as libc::c_ulonglong);
+    }
+    let res = unsafe {
+        libc::ptrace(
+            request as RequestType,
+            libc::pid_t::from(pid),
+            ptr::null_mut::<user_regs_struct>(),
+            ptr,
         )
     };
     Errno::result(res)?;

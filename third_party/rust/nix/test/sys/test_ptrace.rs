@@ -186,7 +186,8 @@ fn test_ptrace_interrupt() {
                 target_arch = "x86_64",
                 target_arch = "x86",
                 target_arch = "aarch64",
-                target_arch = "riscv64"
+                target_arch = "riscv64",
+                target_arch = "e2k",
             )
         ),
         all(target_env = "musl", target_arch = "aarch64")
@@ -243,6 +244,10 @@ fn test_ptrace_syscall() {
             #[cfg(target_arch = "riscv64")]
             let get_syscall_id =
                 || ptrace::getregs(child).unwrap().a7 as libc::c_long;
+
+            #[cfg(target_arch = "e2k")]
+            let get_syscall_id =
+                || ptrace::getregs(child).unwrap().sys_num as libc::c_long;
 
             // this duplicates `get_syscall_id` for the purpose of testing `ptrace::read_user`.
             #[cfg(target_arch = "x86_64")]

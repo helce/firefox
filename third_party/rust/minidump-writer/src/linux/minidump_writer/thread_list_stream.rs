@@ -62,6 +62,10 @@ impl MinidumpWriter {
             location: list_header.location(),
         };
 
+        #[cfg(target_arch = "e2k")]
+        let mut thread_list =
+            MemoryArrayWriter::<MDRawThreadExtend>::alloc_array(buffer, num_threads)?;
+        #[cfg(not(target_arch = "e2k"))]
         let mut thread_list = MemoryArrayWriter::<MDRawThread>::alloc_array(buffer, num_threads)?;
         dirent.location.data_size += thread_list.location().data_size;
         // If there's a minidump size limit, check if it might be exceeded.  Since
@@ -90,6 +94,15 @@ impl MinidumpWriter {
                 teb: 0,
                 stack: MDMemoryDescriptor::default(),
                 thread_context: MDLocationDescriptor::default(),
+            };
+
+            #[cfg(target_arch = "e2k")]
+            let mut e2k_thread = MDRawE2kThreadExtend {
+                thread_id: item.tid.try_into()?,
+                _pad0: 0,
+                proc_stack: MDMemoryDescriptor::default(),
+                chain_stack: MDMemoryDescriptor::default(),
+                _pad1: 0,
             };
 
             // We have a different source of information for the crashing thread. If
@@ -152,6 +165,15 @@ impl MinidumpWriter {
                 let mut cpu: RawContextCPU = Default::default();
                 let crash_context = self.crash_context.as_ref().unwrap();
                 crash_context.fill_cpu_context(&mut cpu);
+                #[cfg(target_arch = "e2k")]
+                {
+                    let psb = crash_context.get_proc_stack_base();
+                    let psp = crash_context.get_proc_stack_pointer();
+                    let pcsb = crash_context.get_chain_stack_base();
+                    let pcsp = crash_context.get_chain_stack_pointer();
+                    self.fill_thread_hw_stack(buffer, &mut e2k_thread, psb, psp, true)?;
+                    self.fill_thread_hw_stack(buffer, &mut e2k_thread, pcsb, pcsp, false)?;
+                }
                 let cpu_section = MemoryWriter::alloc_with_val(buffer, cpu)?;
                 thread.thread_context = cpu_section.location();
 
@@ -176,6 +198,15 @@ impl MinidumpWriter {
 
                 let mut cpu = RawContextCPU::default();
                 info.fill_cpu_context(&mut cpu);
+                #[cfg(target_arch = "e2k")]
+                {
+                    let psb = info.proc_stack_base;
+                    let psp = info.get_proc_stack_pointer();
+                    let pcsb = info.chain_stack_base;
+                    let pcsp = info.get_chain_stack_pointer();
+                    self.fill_thread_hw_stack(buffer, &mut e2k_thread, psb, psp, true)?;
+                    self.fill_thread_hw_stack(buffer, &mut e2k_thread, pcsb, pcsp, false)?;
+                }
                 let cpu_section = MemoryWriter::<RawContextCPU>::alloc_with_val(buffer, cpu)?;
                 thread.thread_context = cpu_section.location();
                 if item.tid == self.blamed_thread {
@@ -187,6 +218,12 @@ impl MinidumpWriter {
                     );
                 }
             }
+
+            #[cfg(target_arch = "e2k")]
+            let thread = MDRawThreadExtend {
+                thread: thread,
+                e2k_thread: e2k_thread,
+            };
             thread_list.set_value_at(buffer, thread, idx)?;
         }
         Ok(dirent)
@@ -246,6 +283,42 @@ impl MinidumpWriter {
             thread.stack.start_of_memory_range = valid_stack_ptr as u64;
             thread.stack.memory = stack_location;
             self.memory_blocks.push(thread.stack);
+        }
+        Ok(())
+    }
+
+    #[cfg(target_arch = "e2k")]
+    fn fill_thread_hw_stack(
+        &mut self,
+        buffer: &mut DumpBuf,
+        thread: &mut MDRawE2kThreadExtend,
+        stack_base: usize,
+        stack_ptr: usize,
+        is_procedure: bool,
+    ) -> Result<(), SectionThreadListError> {
+        let page_size = unsafe { libc::sysconf(libc::_SC_PAGESIZE) } as usize;
+        assert!(page_size > 0);
+        let stack_ptr = (stack_ptr + (page_size - 1)) & !(page_size - 1);
+        let stack_len = stack_ptr - stack_base;
+        let stack_bytes = MinidumpWriter::copy_from_process(
+            &self.process_inspector,
+            thread.thread_id.try_into()?,
+            stack_base,
+            stack_len,
+        )?;
+        let stack_location = MDLocationDescriptor {
+            data_size: stack_bytes.len() as u32,
+            rva: buffer.position() as u32,
+        };
+        buffer.write_all(&stack_bytes);
+        if is_procedure {
+            thread.proc_stack.start_of_memory_range = stack_base as u64;
+            thread.proc_stack.memory = stack_location;
+            self.memory_blocks.push(thread.proc_stack);
+        } else {
+            thread.chain_stack.start_of_memory_range = stack_base as u64;
+            thread.chain_stack.memory = stack_location;
+            self.memory_blocks.push(thread.chain_stack);
         }
         Ok(())
     }

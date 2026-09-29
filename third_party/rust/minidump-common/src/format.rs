@@ -716,6 +716,34 @@ pub struct MINIDUMP_THREAD {
     pub thread_context: MINIDUMP_LOCATION_DESCRIPTOR,
 }
 
+/// Extended information about a single thread from a minidump for e2k
+///
+/// This is a Breakpad extension.
+#[derive(Debug, Clone, Pread, Pwrite, SizeWith)]
+pub struct MINIDUMP_THREAD_E2K {
+    /// The identifier of the thread
+    pub thread_id: u32,
+    /// Struct should be the same size as MINIDUMP_THREAD
+    pub _pad0: u32,
+    /// The location and base address of this thread's procedure stack memory
+    pub proc_stack: MINIDUMP_MEMORY_DESCRIPTOR,
+    /// The location and base address of this thread's chain stack memory
+    pub chain_stack: MINIDUMP_MEMORY_DESCRIPTOR,
+    /// Struct should be the same size as MINIDUMP_THREAD
+    pub _pad1: u64,
+}
+
+/// Extended thread
+///
+/// This is a Breakpad extension.
+#[derive(Debug, Clone, Pread, Pwrite, SizeWith)]
+pub struct MINIDUMP_THREAD_EXTEND {
+    /// The original thread information
+    pub thread: MINIDUMP_THREAD,
+    /// The e2k extension
+    pub e2k_thread: MINIDUMP_THREAD_E2K,
+}
+
 /// Information about the exception that caused the process to terminate.
 ///
 /// This struct matches the [Microsoft struct][msdn] of the same name.
@@ -810,6 +838,7 @@ bitflags! {
         const CONTEXT_PPC64 = 0x1000000;
         const CONTEXT_SPARC = 0x10000000;
         const CONTEXT_X86 = 0x10000;
+        const CONTEXT_E2K = 0x00000800;
     }
 }
 
@@ -1410,6 +1439,27 @@ pub struct CONTEXT_X86 {
     pub extended_registers: [u8; 512], // MAXIMUM_SUPPORTED_EXTENSION
 }
 
+/// e2k CPU context
+///
+/// This is a Breakpad extension, as there is no definition of `CONTEXT` for e2k in WinNT.h.
+#[derive(Debug, Clone, SmartDefault, Pread, Pwrite, SizeWith)]
+#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
+pub struct CONTEXT_E2K {
+    pub context_flags: u32,
+    pub _pad0: u32,
+    pub usbr: u64,
+    pub usd_lo: u64,
+    pub usd_hi: u64,
+    pub psp_lo: u64,
+    pub psp_hi: u64,
+    pub cr0_lo: u64,
+    pub cr0_hi: u64,
+    pub cr1_lo: u64,
+    pub cr1_hi: u64,
+    pub pcsp_lo: u64,
+    pub pcsp_hi: u64,
+}
+
 /// CPU information contained within the [`MINIDUMP_SYSTEM_INFO`] struct
 ///
 /// This struct matches the definition of the `CPU_INFORMATION` union from minidumpapiset.h.
@@ -1444,6 +1494,15 @@ pub struct ARMCpuInfo {
     ///
     /// See [`ArmElfHwCaps`] for possible values.
     pub elf_hwcaps: u32,
+}
+
+/// E2k-specific CPU information (Breakpad extension)
+#[derive(Debug, Clone, Pread, Pwrite, SizeWith)]
+pub struct E2KCpuInfo {
+    pub vendor_id: [u32; 3],
+    pub iset_id: u32,
+    pub model_id: u32,
+    pub revision_id: u32,
 }
 
 /// CPU information for non-x86 CPUs
@@ -1514,6 +1573,8 @@ pub enum ProcessorArchitecture {
     PROCESSOR_ARCHITECTURE_ARM64_OLD = 0x8003,
     /// Breakpad-defined value for MIPS64
     PROCESSOR_ARCHITECTURE_MIPS64 = 0x8004,
+    /// Breakpad-defined value for E2K
+    PROCESSOR_ARCHITECTURE_E2K = 0x8005,
     PROCESSOR_ARCHITECTURE_UNKNOWN = 0xffff,
 }
 

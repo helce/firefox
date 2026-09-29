@@ -758,6 +758,29 @@ pub struct Stat {
     pub st_blocks: ffi::c_long,
     pub(crate) __unused: [ffi::c_ulong; 3],
 }
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+#[allow(missing_docs)]
+#[non_exhaustive]
+#[cfg(target_arch = "e2k")]
+pub struct Stat {
+    pub st_dev: ffi::c_ulong,
+    pub st_ino: ffi::c_ulong,
+    pub st_mode: ffi::c_uint,
+    pub st_nlink: ffi::c_uint,
+    pub st_uid: ffi::c_uint,
+    pub st_gid: ffi::c_uint,
+    pub st_rdev: ffi::c_uint,
+    pub st_size: ffi::c_long,
+    pub st_blksize: ffi::c_long,
+    pub st_blocks: ffi::c_long,
+    pub st_atime: ffi::c_long,
+    pub st_atime_nsec: ffi::c_ulong,
+    pub st_mtime: ffi::c_long,
+    pub st_mtime_nsec: ffi::c_ulong,
+    pub st_ctime: ffi::c_long,
+    pub st_ctime_nsec: ffi::c_ulong,
+}
 
 /// `struct statfs` for use with [`statfs`] and [`fstatfs`].
 ///

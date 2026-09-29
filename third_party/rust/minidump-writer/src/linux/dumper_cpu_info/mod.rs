@@ -19,6 +19,10 @@ cfg_if::cfg_if! {
     {
         pub mod arm;
         pub use arm as imp;
+    } else if #[cfg(target_arch = "e2k")]
+    {
+        pub mod e2k;
+        pub use e2k as imp;
     }
 }
 
@@ -71,6 +75,8 @@ pub fn os_information() -> (PlatformId, String) {
                 "aarch64"
             } else if cfg!(target_arch = "arm") {
                 "arm"
+            } else if cfg!(target_arch = "e2k") {
+                "e2k"
             } else {
                 "<unknown>"
             };

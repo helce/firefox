@@ -823,7 +823,7 @@ license file's hash.
             return False
 
         res = subprocess.run(
-            [cargo, "vendor", vendor_dir],
+            [cargo, "vendor", vendor_dir, "--respect-source-config"],
             cwd=self.topsrcdir,
             stdout=subprocess.PIPE,
             check=False,

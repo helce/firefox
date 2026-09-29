@@ -695,6 +695,11 @@ fn rust_to_clang_target(rust_target: &str) -> Box<str> {
         triple[0] = "riscv64";
     }
 
+    // E2K
+    if triple[0].starts_with("e2k") {
+        triple[0] = "e2k";
+    }
+
     // Apple
     if triple[1] == "apple" {
         if triple[0] == "aarch64" {

@@ -181,7 +181,7 @@ checksum = "68ccbd3153aa153b2f5eff557537ffce81e4dd6c50ae0eddc41dc8d0c388436f"
 name = "cc"
 version = "1.2.44"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "37521ac7aabe3d13122dc382493e20c9416f299d2ccd5b3a5340a2570cdeb0f3"
+checksum = "1784fd06937e65c2ccd97a7f70d32549d5c7bdf7e50318be721ebae3d9a46cd2"
 dependencies = [
  "find-msvc-tools",
  "shlex",
@@ -378,7 +378,7 @@ checksum = "37909eebbb50d72f9059c3b6d82c0463f2ff062c9e95845c43a6c9c0355411be"
 name = "find-msvc-tools"
 version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "52051878f80a721bb68ebfbc930e07b65ba72f2da88968ea5c06fd6ca3d3a127"
+checksum = "278990ad364ddb9256292e083fe19eca740d9395f9725f5c205dbb3f35e75477"
 
 [[package]]
 name = "flate2"
@@ -802,7 +802,7 @@ dependencies = [
 name = "libc"
 version = "0.2.177"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2874a2af47a2325c2001a6e6fad9b16a53b802102b528163885171cf92b15976"
+checksum = "4e85a06b988e3d4e39214c9655400fc4edb9ee98c84bd8fcc7878e0a5d87d234"
 
 [[package]]
 name = "libredox"
@@ -860,7 +860,7 @@ dependencies = [
 name = "linux-raw-sys"
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "df1d3c3b53da64cf5760482273a98e575c651a67eec7f77df96b5b642de8f039"
+checksum = "90a66a3f94635820cc03efa0afb015b846b7106e169af03c388ed8fc1eeecfc9"
 
 [[package]]
 name = "litemap"
@@ -941,7 +941,7 @@ dependencies = [
 name = "minidump"
 version = "0.26.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a902ca21d9772a66d3d1b050b3436dcadb192694be01409e0219902dcf4bc1e8"
+checksum = "94a0c2876555ce2ce63f6018b7a246bbf997cee7f71d0a98f16d90453ce99eb6"
 dependencies = [
  "debugid",
  "encoding_rs",
@@ -962,7 +962,7 @@ dependencies = [
 name = "minidump-common"
 version = "0.26.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2e16d10087ae9e375bad7a40e8ef5504bc08e808ccc6019067ff9de42a84570f"
+checksum = "24edd5670935b6b55cc757bc2fa003e15e85e76ee230514131b27c09ce7dfa6b"
 dependencies = [
  "bitflags",
  "debugid",
@@ -1447,7 +1447,7 @@ dependencies = [
 name = "ring"
 version = "0.17.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a4689e6c2294d81e88dc6261c768b63bc4fcdb852be6d1352498b114f61383b7"
+checksum = "0932ad93abc8a9ac081f7eeb631d6221c9cd324a93d4fc64962096c8b95156b1"
 dependencies = [
  "cc",
  "cfg-if",
@@ -1473,7 +1473,7 @@ checksum = "357703d41365b4b27c590e3ed91eabb1b663f07c4c084095e60cbed4362dff0d"
 name = "rustix"
 version = "1.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cd15f8a2c5551a84d56efdc1cd049089e409ac19a3072d5037a17fd70719ff3e"
+checksum = "d91b2dd3e02eeaa40b8954f26afe824eb32a289da6ec6d7169e5909709b7941d"
 dependencies = [
  "bitflags",
  "errno",

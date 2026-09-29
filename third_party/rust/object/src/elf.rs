@@ -5965,6 +5965,86 @@ pub const R_NDS32_RELATIVE: u32 = 42;
 pub const R_NDS32_TLS_TPOFF: u32 = 102;
 pub const R_NDS32_TLS_DESC: u32 = 119;
 
+// E2K values `FileHeader*::e_flags`.
+pub const EF_E2K_IPD: u32 = 3;
+pub const EF_E2K_X86APP: u32 = 4;
+pub const EF_E2K_4MB_PAGES: u32 = 8;
+pub const EF_E2K_INCOMPAT: u32 = 16;
+pub const EF_E2K_PM: u32 = 32;
+pub const EF_E2K_PACK_SEGMENTS: u32 = 64;
+pub const EF_E2K_MACH_EV2: u32 = 0x2000000;
+pub const EF_E2K_MACH_EV3: u32 = 0x3000000;
+pub const EF_E2K_MACH_EV4: u32 = 0x4000000;
+pub const EF_E2K_MACH_EV5: u32 = 0x5000000;
+pub const EF_E2K_MACH_EV6: u32 = 0x6000000;
+pub const EF_E2K_MACH_EV7: u32 = 0x7000000;
+pub const EF_E2K_MACH_8C: u32 = 0x13000000;
+pub const EF_E2K_MACH_1CPLUS: u32 = 0x14000000;
+pub const EF_E2K_MACH_12C: u32 = 0x15000000;
+pub const EF_E2K_MACH_16C: u32 = 0x16000000;
+pub const EF_E2K_MACH_2C3: u32 = 0x17000000;
+pub const EF_E2K_MACH_48C: u32 = 0x18000000;
+pub const EF_E2K_MACH_8V7: u32 = 0x19000000;
+
+// E2K values `Rel*::r_type`.
+pub const R_E2K_32_ABS: u32 = 0;
+pub const R_E2K_32_PC: u32 = 2;
+pub const R_E2K_AP_GOT: u32 = 3;
+pub const R_E2K_PL_GOT: u32 = 4;
+pub const R_E2K_32_JMP_SLOT: u32 = 8;
+pub const R_E2K_32_COPY: u32 = 9;
+pub const R_E2K_32_RELATIVE: u32 = 10;
+pub const R_E2K_32_IRELATIVE: u32 = 11;
+pub const R_E2K_32_SIZE: u32 = 12;
+pub const R_E2K_32_DYNOPT: u32 = 13;
+pub const R_E2K_64_ABS: u32 = 50;
+pub const R_E2K_64_ABS_LIT: u32 = 51;
+pub const R_E2K_64_PC_LIT: u32 = 54;
+pub const R_E2K_64_JMP_SLOT: u32 = 63;
+pub const R_E2K_64_COPY: u32 = 64;
+pub const R_E2K_64_RELATIVE: u32 = 65;
+pub const R_E2K_64_RELATIVE_LIT: u32 = 66;
+pub const R_E2K_64_IRELATIVE: u32 = 67;
+pub const R_E2K_64_SIZE: u32 = 68;
+pub const R_E2K_64_GOTOFF: u32 = 69;
+pub const R_E2K_64_GOTOFF_LIT: u32 = 256;
+pub const R_E2K_64_DYNOPT: u32 = 257;
+pub const R_E2K_64_PC: u32 = 258;
+pub const R_E2K_TLS_GDMOD: u32 = 70;
+pub const R_E2K_TLS_GDREL: u32 = 71;
+pub const R_E2K_TLS_IE: u32 = 74;
+pub const R_E2K_32_TLS_LE: u32 = 75;
+pub const R_E2K_64_TLS_LE: u32 = 76;
+pub const R_E2K_TLS_32_DTPMOD: u32 = 80;
+pub const R_E2K_TLS_32_DTPREL: u32 = 81;
+pub const R_E2K_TLS_64_DTPMOD: u32 = 82;
+pub const R_E2K_TLS_64_DTPREL: u32 = 83;
+pub const R_E2K_TLS_32_TPREL: u32 = 84;
+pub const R_E2K_TLS_64_TPREL: u32 = 85;
+pub const R_E2K_AP: u32 = 100;
+pub const R_E2K_PL: u32 = 101;
+pub const R_E2K_GOT: u32 = 108;
+pub const R_E2K_GOTOFF: u32 = 109;
+pub const R_E2K_DISP: u32 = 110;
+pub const R_E2K_PREF: u32 = 111;
+pub const R_E2K_NONE: u32 = 112;
+pub const R_E2K_GOTPLT: u32 = 114;
+pub const R_E2K_ISLOCAL: u32 = 115;
+pub const R_E2K_ISLOCAL32: u32 = 118;
+pub const R_E2K_ALIGN_RELAX: u32 = 119;
+pub const R_E2K_HWBUG_140436_RELAX: u32 = 120;
+
+// E2k specific values for `Dyn*::d_tag`.
+pub const DT_E2K_LAZY_DEFECTIVE: u32 = DT_LOPROC + 0;
+pub const DT_E2K_LAZY: u32 = DT_LOPROC + 1;
+pub const DT_E2K_LAZY_GOT: u32 = DT_LOPROC + 3;
+pub const DT_PLTGOTSZ: u32 = DT_LOPROC + 0x101b;
+pub const DT_E2K_INIT_GOT: u32 = DT_LOPROC + 0x101c;
+pub const DT_E2K_EXPORT_PL: u32 = DT_LOPROC + 0x101d;
+pub const DT_E2K_EXPORT_PLSZ: u32 = DT_LOPROC + 0x101e;
+pub const DT_E2K_REAL_PLTGOT: u32 = DT_LOPROC + 0x101f;
+pub const DT_E2K_NUM: u32 = 0x1020;
+
 // LoongArch values `FileHeader*::e_flags`.
 /// Additional properties of the base ABI type, including the FP calling
 /// convention.

@@ -346,6 +346,11 @@ fn parse_relocation<Elf: FileHeader>(
             }
             _ => (RelocationKind::Unknown, 0),
         },
+        elf::EM_MCST_ELBRUS => match r_type {
+            elf::R_E2K_32_ABS => (RelocationKind::Absolute, 32),
+            elf::R_E2K_64_ABS => (RelocationKind::Absolute, 64),
+            _ => (RelocationKind::Unknown, 0),
+        },
         elf::EM_MIPS => match r_type {
             elf::R_MIPS_16 => (RelocationKind::Absolute, 16),
             elf::R_MIPS_32 => (RelocationKind::Absolute, 32),

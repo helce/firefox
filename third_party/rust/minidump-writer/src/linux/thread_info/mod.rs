@@ -54,6 +54,9 @@ cfg_if::cfg_if! {
     } else if #[cfg(target_arch = "aarch64")] {
         mod aarch64;
         pub type ThreadInfo = aarch64::ThreadInfoAarch64;
+    } else if #[cfg(target_arch = "e2k")] {
+        mod e2k;
+        pub type ThreadInfo = e2k::ThreadInfoE2k;
     }
 }
 

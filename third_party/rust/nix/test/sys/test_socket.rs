@@ -925,7 +925,11 @@ pub fn test_scm_rights() {
 //    https://github.com/nix-rust/nix/issues/1352
 #[cfg(linux_android)]
 #[cfg_attr(
-    any(qemu, all(target_os = "linux", target_arch = "aarch64")),
+    any(
+        qemu,
+        all(target_os = "linux", target_arch = "aarch64"),
+        all(target_os = "linux", target_arch = "e2k")
+    ),
     ignore
 )]
 #[test]
@@ -1023,6 +1027,10 @@ pub fn test_af_alg_cipher() {
 // Disable the test on emulated platforms due to not enabled support of AF_ALG
 // in QEMU from rust cross
 #[cfg(linux_android)]
+#[cfg_attr(
+    any(qemu, all(target_os = "linux", target_arch = "e2k")),
+    ignore
+)]
 #[cfg_attr(qemu, ignore)]
 #[test]
 pub fn test_af_alg_aead() {

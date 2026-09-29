@@ -1,5 +1,6 @@
 {
   "git": {
-    "sha1": "1fd5dcac4c154ed036fb2c072a679019f9481817"
-  }
+    "sha1": "bb3b073324df7cb43c68a9a155db4803a950d940"
+  },
+  "path_in_vcs": "ioctl-sys"
 }

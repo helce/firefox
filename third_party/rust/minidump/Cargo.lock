@@ -287,7 +287,7 @@ dependencies = [
 name = "libc"
 version = "0.2.177"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2874a2af47a2325c2001a6e6fad9b16a53b802102b528163885171cf92b15976"
+checksum = "4e85a06b988e3d4e39214c9655400fc4edb9ee98c84bd8fcc7878e0a5d87d234"
 
 [[package]]
 name = "log"
@@ -338,7 +338,7 @@ dependencies = [
 name = "minidump-common"
 version = "0.26.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2e16d10087ae9e375bad7a40e8ef5504bc08e808ccc6019067ff9de42a84570f"
+checksum = "24edd5670935b6b55cc757bc2fa003e15e85e76ee230514131b27c09ce7dfa6b"
 dependencies = [
  "arbitrary",
  "bitflags",

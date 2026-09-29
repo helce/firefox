@@ -886,7 +886,7 @@ dependencies = [
 name = "cc"
 version = "1.2.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "deec109607ca693028562ed836a5f1c4b8bd77755c4e132fc5ce11b0b6211ae7"
+checksum = "01fe197461dedfc1e9dcdf9b770384b7dd64b648766a462a23a48a971b7acf42"
 dependencies = [
  "jobserver",
  "libc",
@@ -1304,7 +1304,7 @@ dependencies = [
 name = "crash-context"
 version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b85cef661eeca0c6675116310936972c520ebb0a33ddef16fd7efc957f4c1288"
+checksum = "34c5fde34b3d747365b05fdd87d1b06fa9d8c6228a78b08650e7c01d87d6ed00"
 dependencies = [
  "cfg-if",
  "libc",
@@ -3879,7 +3879,7 @@ dependencies = [
 name = "ioctl-sys"
 version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7f9d0b6b23885487578d10590edc36fd95426257c7017973b20633e34df23b08"
+checksum = "c9634d0b92386dc00a516c9ad3f66eeff8b930abdac4a94f10058231ef9cfe0f"
 
 [[package]]
 name = "iovec"
@@ -4198,7 +4198,7 @@ checksum = "09edd9e8b54e49e587e4f6295a7d29c3ea94d469cb40ab8ca70b288248a81db2"
 name = "libc"
 version = "0.2.183"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b5b646652bf6661599e1da8901b3b9522896f01e736bad5f723fe7a3a27f899d"
+checksum = "8775253f8a68ef8604aa3e8fb80d23b5cd94820018510121c1817b651c365715"
 
 [[package]]
 name = "libcrux-hacl-rs"
@@ -4321,7 +4321,7 @@ checksum = "0717cef1bc8b636c6e1c1bbdefc09e6322da8a9321966e8928ef80d20f7f770f"
 name = "linux-raw-sys"
 version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "32a66949e030da00e8c7d4434b251670a91556f4144941d37452769c25d58a53"
+checksum = "c19396cd1f509888eb0a3baae710c17989b3a0701b8f756b65b3afc29ba1165a"
 
 [[package]]
 name = "litemap"
@@ -4706,7 +4706,7 @@ dependencies = [
 name = "minidump"
 version = "0.26.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a902ca21d9772a66d3d1b050b3436dcadb192694be01409e0219902dcf4bc1e8"
+checksum = "94a0c2876555ce2ce63f6018b7a246bbf997cee7f71d0a98f16d90453ce99eb6"
 dependencies = [
  "debugid",
  "encoding_rs",
@@ -4744,7 +4744,7 @@ dependencies = [
 name = "minidump-common"
 version = "0.26.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2e16d10087ae9e375bad7a40e8ef5504bc08e808ccc6019067ff9de42a84570f"
+checksum = "24edd5670935b6b55cc757bc2fa003e15e85e76ee230514131b27c09ce7dfa6b"
 dependencies = [
  "bitflags 2.10.0",
  "debugid",
@@ -4759,7 +4759,7 @@ dependencies = [
 name = "minidump-unwind"
 version = "0.26.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4aa8b7212f59c525f93c62457c54f9f9ac550316ee0e41f129b4b19165d5acd1"
+checksum = "5bc05626679818a91d1d1e05624434c3550856d11a466f679f0cd6cbaa3bcf5d"
 dependencies = [
  "async-trait",
  "breakpad-symbols",
@@ -5572,7 +5572,7 @@ dependencies = [
 name = "nix"
 version = "0.30.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "74523f3a35e05aba87a1d978330aef40f67b0304ac79c1c00b294c9830543db6"
+checksum = "e511c1b0b57b86113a5163b0d240ae7bc880927d3fedbdbe51c9f3d37b106726"
 dependencies = [
  "bitflags 2.10.0",
  "cfg-if",
@@ -7046,7 +7046,7 @@ dependencies = [
 name = "rustix"
 version = "1.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b6fe4565b9518b83ef4f91bb47ce29620ca828bd32cb7e408f0062e9930ba190"
+checksum = "cdc1f4d6ed4b341249eff5040f4c953c567dd9bd6d8eaa963d0199620f61137d"
 dependencies = [
  "bitflags 2.10.0",
  "errno",
