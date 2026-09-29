@@ -76,7 +76,7 @@ const float kSqrtHanning128[kFftLength] = {
     0.09801714032956f, 0.07356456359967f, 0.04906767432742f, 0.02454122852291f};
 
 bool IsSse2Available() {
-#if defined(WEBRTC_ARCH_X86_FAMILY)
+#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
   return cpu_info::Supports(cpu_info::ISA::kSSE2);
 #else
   return false;

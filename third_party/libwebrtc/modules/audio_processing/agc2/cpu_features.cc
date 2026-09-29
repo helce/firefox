@@ -41,7 +41,7 @@ std::string AvailableCpuFeatures::ToString() const {
 
 // Detects available CPU features.
 AvailableCpuFeatures GetAvailableCpuFeatures() {
-#if defined(WEBRTC_ARCH_X86_FAMILY)
+#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
   return {/*sse2=*/cpu_info::Supports(cpu_info::ISA::kSSE2),
           /*avx2=*/cpu_info::Supports(cpu_info::ISA::kAVX2),
           /*neon=*/false};

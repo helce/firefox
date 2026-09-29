@@ -24,7 +24,7 @@
 #if defined(WEBRTC_HAS_NEON)
 #include <arm_neon.h>
 #endif
-#if defined(WEBRTC_ARCH_X86_FAMILY)
+#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
 #include <emmintrin.h>
 #endif
 
@@ -40,7 +40,7 @@ class VectorMath {
   void SqrtAVX2(std::span<float> x);
   void Sqrt(std::span<float> x) {
     switch (optimization_) {
-#if defined(WEBRTC_ARCH_X86_FAMILY)
+#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
       case Aec3Optimization::kSse2: {
         const int x_size = static_cast<int>(x.size());
         const int vector_limit = x_size >> 2;
@@ -120,7 +120,7 @@ class VectorMath {
     RTC_DCHECK_EQ(z.size(), x.size());
     RTC_DCHECK_EQ(z.size(), y.size());
     switch (optimization_) {
-#if defined(WEBRTC_ARCH_X86_FAMILY)
+#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
       case Aec3Optimization::kSse2: {
         const int x_size = static_cast<int>(x.size());
         const int vector_limit = x_size >> 2;
@@ -170,7 +170,7 @@ class VectorMath {
   void Accumulate(std::span<const float> x, std::span<float> z) {
     RTC_DCHECK_EQ(z.size(), x.size());
     switch (optimization_) {
-#if defined(WEBRTC_ARCH_X86_FAMILY)
+#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
       case Aec3Optimization::kSse2: {
         const int x_size = static_cast<int>(x.size());
         const int vector_limit = x_size >> 2;

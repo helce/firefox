@@ -120,6 +120,12 @@ if CONFIG["OS_TARGET"] == "WINNT":
     DEFINES["_WINSOCK_DEPRECATED_NO_WARNINGS"] = True
     DEFINES["__STD_C"] = True
 
+if CONFIG["TARGET_CPU"] == "e2k":
+
+    CXXFLAGS += [
+        "-msse2"
+    ]
+
 if CONFIG["MOZ_DEBUG"] == "1" and CONFIG["OS_TARGET"] == "Darwin":
 
     DEFINES["_DEBUG"] = True

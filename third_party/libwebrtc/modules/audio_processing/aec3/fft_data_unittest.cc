@@ -21,7 +21,7 @@
 
 namespace webrtc {
 
-#if defined(WEBRTC_ARCH_X86_FAMILY)
+#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
 // Verifies that the optimized methods are bitexact to their reference
 // counterparts.
 TEST(FftData, TestSse2Optimizations) {

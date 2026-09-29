@@ -109,6 +109,10 @@ if CONFIG["TARGET_CPU"] == "arm":
         "-mfpu=neon"
     ]
 
+if CONFIG["TARGET_CPU"] == "e2k":
+
+    DEFINES["_GNU_SOURCE"] = True
+
 if CONFIG["TARGET_CPU"] == "loongarch64":
 
     DEFINES["PFFFT_SIMD_DISABLE"] = True

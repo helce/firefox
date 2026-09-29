@@ -123,7 +123,7 @@ const size_t SincResampler::kKernelSize;
 void SincResampler::InitializeCPUSpecificFeatures() {
 #if defined(WEBRTC_HAS_NEON)
   convolve_proc_ = Convolve_NEON;
-#elif defined(WEBRTC_ARCH_X86_FAMILY)
+#elif defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
   // Using AVX2 instead of SSE2 when AVX2/FMA3 supported.
   if (cpu_info::Supports(cpu_info::ISA::kAVX2) &&
       cpu_info::Supports(cpu_info::ISA::kFMA3))

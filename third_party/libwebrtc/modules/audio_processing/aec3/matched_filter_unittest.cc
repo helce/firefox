@@ -36,7 +36,7 @@
 
 // Defines WEBRTC_ARCH_X86_FAMILY, used below.
 #include "rtc_base/system/arch.h"
-#if defined(WEBRTC_ARCH_X86_FAMILY)
+#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
 #include <emmintrin.h>
 #endif
 
@@ -120,7 +120,7 @@ TEST_P(MatchedFilterTest, TestNeonOptimizations) {
 }
 #endif
 
-#if defined(WEBRTC_ARCH_X86_FAMILY)
+#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
 // Verifies that the optimized methods for SSE2 are bitexact to their reference
 // counterparts.
 TEST_P(MatchedFilterTest, TestSse2Optimizations) {

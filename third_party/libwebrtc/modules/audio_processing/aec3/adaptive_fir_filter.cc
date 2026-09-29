@@ -28,7 +28,7 @@
 #if defined(WEBRTC_HAS_NEON)
 #include <arm_neon.h>
 #endif
-#if defined(WEBRTC_ARCH_X86_FAMILY)
+#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
 #include <emmintrin.h>
 #endif
 
@@ -91,7 +91,7 @@ void ComputeFrequencyResponse_Neon(
 }
 #endif
 
-#if defined(WEBRTC_ARCH_X86_FAMILY)
+#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
 // Computes and stores the frequency response of the filter.
 void ComputeFrequencyResponse_Sse2(
     size_t num_partitions,
@@ -215,7 +215,7 @@ void AdaptPartitions_Neon(const RenderBuffer& render_buffer,
 }
 #endif
 
-#if defined(WEBRTC_ARCH_X86_FAMILY)
+#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
 // Adapts the filter partitions. (SSE2 variant)
 void AdaptPartitions_Sse2(const RenderBuffer& render_buffer,
                           const FftData& G,
@@ -380,7 +380,7 @@ void ApplyFilter_Neon(const RenderBuffer& render_buffer,
 }
 #endif
 
-#if defined(WEBRTC_ARCH_X86_FAMILY)
+#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
 // Produces the filter output (SSE2 variant).
 void ApplyFilter_Sse2(const RenderBuffer& render_buffer,
                       size_t num_partitions,
@@ -557,7 +557,7 @@ void AdaptiveFirFilter::Filter(const RenderBuffer& render_buffer,
                                FftData* S) const {
   RTC_DCHECK(S);
   switch (optimization_) {
-#if defined(WEBRTC_ARCH_X86_FAMILY)
+#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
     case Aec3Optimization::kSse2:
       ApplyFilter_Sse2(render_buffer, current_size_partitions_, H_, S);
       break;
@@ -601,7 +601,7 @@ void AdaptiveFirFilter::ComputeFrequencyResponse(
   H2->resize(current_size_partitions_);
 
   switch (optimization_) {
-#if defined(WEBRTC_ARCH_X86_FAMILY)
+#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
     case Aec3Optimization::kSse2:
       ComputeFrequencyResponse_Sse2(current_size_partitions_, H_, H2);
       break;
@@ -626,7 +626,7 @@ void AdaptiveFirFilter::AdaptAndUpdateSize(const RenderBuffer& render_buffer,
 
   // Adapt the filter.
   switch (optimization_) {
-#if defined(WEBRTC_ARCH_X86_FAMILY)
+#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
     case Aec3Optimization::kSse2:
       AdaptPartitions_Sse2(render_buffer, G, current_size_partitions_, &H_);
       break;

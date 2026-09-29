@@ -146,6 +146,12 @@ if CONFIG["OS_TARGET"] == "WINNT":
         "winmm"
     ]
 
+if CONFIG["TARGET_CPU"] == "e2k":
+
+    CXXFLAGS += [
+        "-msse2"
+    ]
+
 if CONFIG["MOZ_DEBUG"] == "1" and CONFIG["OS_TARGET"] == "Android":
 
     DEFINES["_DEBUG"] = True

@@ -96,7 +96,7 @@ rtc_library("rnn_vad_layers") {
     "//third_party/abseil-cpp/absl/strings:string_view",
     "//third_party/rnnoise:rnn_vad",
   ]
-  if (current_cpu == "x86" || current_cpu == "x64") {
+  if (current_cpu == "x86" || current_cpu == "x64" || current_cpu == "e2k") {
     deps += [ ":vector_math_avx2" ]
   }
 }
@@ -111,7 +111,7 @@ rtc_source_set("vector_math") {
   ]
 }
 
-if (current_cpu == "x86" || current_cpu == "x64") {
+if (current_cpu == "x86" || current_cpu == "x64" || current_cpu == "e2k") {
   rtc_library("vector_math_avx2") {
     sources = [ "vector_math_avx2.cc" ]
     if (is_win && !build_with_mozilla) {
@@ -155,7 +155,7 @@ rtc_library("rnn_vad_pitch") {
     "../../../../rtc_base:safe_conversions",
     "../../../../rtc_base/system:arch",
   ]
-  if (current_cpu == "x86" || current_cpu == "x64") {
+  if (current_cpu == "x86" || current_cpu == "x64" || current_cpu == "e2k") {
     deps += [ ":vector_math_avx2" ]
   }
 }
@@ -283,7 +283,7 @@ if (rtc_include_tests) {
       "../../utility:pffft_wrapper",
       "//third_party/rnnoise:rnn_vad",
     ]
-    if (current_cpu == "x86" || current_cpu == "x64") {
+    if (current_cpu == "x86" || current_cpu == "x64" || current_cpu == "e2k") {
       deps += [ ":vector_math_avx2" ]
     }
     data = unittest_resources

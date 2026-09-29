@@ -17,7 +17,7 @@
 
 // Defines WEBRTC_ARCH_X86_FAMILY, used below.
 #include "rtc_base/system/arch.h"
-#if defined(WEBRTC_ARCH_X86_FAMILY)
+#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
 #include "modules/desktop_capture/differ_vector_sse2.h"
 #endif
 
@@ -35,7 +35,7 @@ bool VectorDifference(const uint8_t* image1, const uint8_t* image2) {
   static bool (*diff_proc)(const uint8_t*, const uint8_t*) = nullptr;
 
   if (!diff_proc) {
-#if defined(WEBRTC_ARCH_X86_FAMILY)
+#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
     bool have_sse2 = cpu_info::Supports(cpu_info::ISA::kSSE2);
     // For x86 processors, check if SSE2 is supported.
     if (have_sse2 && kBlockSize == 32) {

@@ -119,7 +119,7 @@ TEST(SincResamplerTest, DISABLED_SetRatioBench) {
 // this test if other optimized methods exist, otherwise the default Convolve()
 // will be tested by the parameterized SincResampler tests below.
 TEST(SincResamplerTest, Convolve) {
-#if defined(WEBRTC_ARCH_X86_FAMILY)
+#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
   ASSERT_TRUE(cpu_info::Supports(cpu_info::ISA::kSSE2));
 #elif defined(WEBRTC_ARCH_ARM_V7)
   ASSERT_TRUE(cpu_info::Supports(cpu_info::ISA::kNeon));
@@ -179,7 +179,7 @@ TEST(SincResamplerTest, ConvolveBenchmark) {
   double total_time_c_us = (TimeNanos() - start) / kNumNanosecsPerMicrosec;
   printf("Convolve_C took %.2fms.\n", total_time_c_us / 1000);
 
-#if defined(WEBRTC_ARCH_X86_FAMILY)
+#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
   ASSERT_TRUE(cpu_info::Supports(cpu_info::ISA::kSSE2));
 #elif defined(WEBRTC_ARCH_ARM_V7)
   ASSERT_TRUE(cpu_info::Supports(cpu_info::ISA::kNeon));

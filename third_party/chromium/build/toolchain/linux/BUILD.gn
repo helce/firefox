@@ -419,3 +419,26 @@ gcc_toolchain("loong64") {
     is_clang = false
   }
 }
+
+gcc_toolchain("e2k") {
+  cc = "gcc"
+  cxx = "g++"
+
+  readelf = "readelf"
+  nm = "nm"
+  ar = "ar"
+  ld = cxx
+
+  toolchain_args = {
+    target_cpu = "e2k"
+    current_os = "linux"
+    is_clang = false
+  }
+}
+
+clang_toolchain("clang_e2k") {
+  toolchain_args = {
+    target_cpu = "e2k"
+    current_os = "linux"
+  }
+}

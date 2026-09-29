@@ -141,6 +141,11 @@ if CONFIG["TARGET_CPU"] == "arm":
     DEFINES["WEBRTC_HAS_NEON"] = True
     DEFINES["_GNU_SOURCE"] = True
 
+if CONFIG["TARGET_CPU"] == "e2k":
+
+    DEFINES["WEBRTC_ENABLE_AVX2"] = True
+    DEFINES["_GNU_SOURCE"] = True
+
 if CONFIG["TARGET_CPU"] == "loongarch64":
 
     DEFINES["_GNU_SOURCE"] = True

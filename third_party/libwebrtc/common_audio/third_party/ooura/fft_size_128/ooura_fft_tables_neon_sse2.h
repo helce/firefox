@@ -27,7 +27,7 @@ namespace webrtc {
 // These tables used to be computed at run-time. For example, refer to:
 // https://code.google.com/p/webrtc/source/browse/trunk/webrtc/modules/audio_processing/utility/apm_rdft.c?r=6564
 // to see the initialization code.
-#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_HAS_NEON)
+#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_HAS_NEON) || defined(WEBRTC_ARCH_E2K)
 // Constants used by SSE2 and NEON but initialized in the C path.
 const ALIGN16_BEG float ALIGN16_END k_swap_sign[4] = {-1.f, 1.f, -1.f, 1.f};
 

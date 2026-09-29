@@ -31,7 +31,7 @@ void ErlComputer_NEON(
     const std::vector<std::array<float, kFftLengthBy2Plus1>>& H2,
     std::span<float> erl);
 #endif
-#if defined(WEBRTC_ARCH_X86_FAMILY)
+#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
 void ErlComputer_SSE2(
     const std::vector<std::array<float, kFftLengthBy2Plus1>>& H2,
     std::span<float> erl);

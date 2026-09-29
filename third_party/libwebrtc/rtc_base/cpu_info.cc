@@ -38,6 +38,10 @@
 #if defined(WEBRTC_ARCH_X86_FAMILY) && defined(_MSC_VER)
 #include <intrin.h>
 #endif
+#if defined(WEBRTC_ARCH_E2K)
+#include <cpuid.h>
+#include <e2kbuiltin.h>
+#endif
 #if defined(WEBRTC_ARCH_ARM_FAMILY) && defined(WEBRTC_LINUX)
 #include <asm/hwcap.h>
 #include <sys/auxv.h>
@@ -82,13 +86,13 @@ uint32_t DetectNumberOfCoresHelper() {
   return static_cast<uint32_t>(number_of_cores);
 }
 
-#if defined(WEBRTC_ARCH_X86_FAMILY)
+#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
 
 #if defined(WEBRTC_ENABLE_AVX2)
 // xgetbv returns the value of an Intel Extended Control Register (XCR).
 // Currently only XCR0 is defined by Intel so `xcr` should always be zero.
 uint64_t xgetbv(uint32_t xcr) {
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__e2k__)
   return _xgetbv(xcr);
 #else
   uint32_t eax, edx;
@@ -101,7 +105,12 @@ uint64_t xgetbv(uint32_t xcr) {
 
 #ifndef _MSC_VER
 // Intrinsic for "cpuid".
-#if defined(__pic__) && defined(__i386__)
+#if defined(__e2k__)
+#undef __cpuid
+inline void __cpuid(int cpu_info[4], int info_type) {
+  __cpuidex(cpu_info, info_type, 0);
+}
+#elif defined(__pic__) && defined(__i386__)
 static inline void __cpuid(int cpu_info[4], int info_type) {
   __asm__ volatile(
       "mov %%ebx, %%edi\n"
@@ -121,7 +130,7 @@ inline void __cpuid(int cpu_info[4], int info_type) {
 #endif
 #endif  // _MSC_VER
 
-#endif  // WEBRTC_ARCH_X86_FAMILY
+#endif  // WEBRTC_ARCH_X86_FAMILY || WEBRTC_ARCH_E2K
 
 }  // namespace
 
@@ -137,7 +146,7 @@ uint32_t DetectNumberOfCores() {
 }
 
 bool Supports(ISA instruction_set_architecture) {
-#if defined(WEBRTC_ARCH_X86_FAMILY)
+#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
   int cpu_info[4];
   __cpuid(cpu_info, 1);
   if (instruction_set_architecture == ISA::kSSE2) {

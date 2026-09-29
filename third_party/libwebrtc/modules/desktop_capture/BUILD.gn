@@ -10,7 +10,7 @@ import("//chromium/build/config/linux/gtk/gtk.gni")
 import("//chromium/build/config/ui.gni")
 import("../../webrtc.gni")
 
-use_desktop_capture_differ_sse2 = target_cpu == "x86" || target_cpu == "x64"
+use_desktop_capture_differ_sse2 = target_cpu == "x86" || target_cpu == "x64" || target_cpu == "e2k"
 
 config("x11_config") {
   if (rtc_use_x11_extensions) {

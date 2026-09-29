@@ -19,7 +19,7 @@
 
 #if defined(WEBRTC_HAS_NEON)
 #include "common_audio/fir_filter_neon.h"
-#elif defined(WEBRTC_ARCH_X86_FAMILY)
+#elif defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
 #include "common_audio/fir_filter_avx2.h"
 #include "common_audio/fir_filter_sse.h"
 #endif
@@ -36,7 +36,7 @@ FIRFilter* CreateFirFilter(const float* coefficients,
 
   FIRFilter* filter = nullptr;
 // If we know the minimum architecture at compile time, avoid CPU detection.
-#if defined(WEBRTC_ARCH_X86_FAMILY)
+#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
   // x86 CPU detection required.
   if (cpu_info::Supports(cpu_info::ISA::kAVX2)) {
     filter =

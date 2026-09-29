@@ -25,7 +25,7 @@
 #include "rtc_base/system/arch.h"
 
 namespace webrtc {
-#if defined(WEBRTC_ARCH_X86_FAMILY)
+#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
 
 void EstimateComfortNoise_SSE2(const std::array<float, kFftLengthBy2Plus1>& N2,
                                uint32_t* seed,

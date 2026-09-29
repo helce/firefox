@@ -20,7 +20,7 @@ rtc_library("fft_size_128") {
   ]
   cflags = []
 
-  if (target_cpu == "x86" || target_cpu == "x64") {
+  if (target_cpu == "x86" || target_cpu == "x64" || target_cpu == "e2k") {
     sources += [
       "fft_size_128/ooura_fft_sse2.cc",
       "fft_size_128/ooura_fft_tables_neon_sse2.h",

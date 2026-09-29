@@ -98,6 +98,10 @@ if CONFIG["TARGET_CPU"] == "aarch64":
 
     DEFINES["__ARM_NEON__"] = "1"
 
+if CONFIG["TARGET_CPU"] == "e2k":
+
+    DEFINES["_GNU_SOURCE"] = True
+
 if CONFIG["TARGET_CPU"] == "loongarch64":
 
     DEFINES["_GNU_SOURCE"] = True

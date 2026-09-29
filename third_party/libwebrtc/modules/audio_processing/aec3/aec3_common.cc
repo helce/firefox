@@ -19,7 +19,7 @@
 namespace webrtc {
 
 Aec3Optimization DetectOptimization() {
-#if defined(WEBRTC_ARCH_X86_FAMILY)
+#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
   if (cpu_info::Supports(cpu_info::ISA::kAVX2)) {
     return Aec3Optimization::kAvx2;
   } else if (cpu_info::Supports(cpu_info::ISA::kSSE2)) {

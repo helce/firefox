@@ -17,7 +17,7 @@
 #if defined(WEBRTC_HAS_NEON)
 #include <arm_neon.h>
 #endif
-#if defined(WEBRTC_ARCH_X86_FAMILY)
+#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
 #include <emmintrin.h>
 #endif
 
@@ -42,7 +42,7 @@ class VectorMath {
   // Computes the dot product between two equally sized vectors.
   float DotProduct(std::span<const float> x, std::span<const float> y) const {
     RTC_DCHECK_EQ(x.size(), y.size());
-#if defined(WEBRTC_ARCH_X86_FAMILY)
+#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
     if (cpu_features_.avx2) {
       return DotProductAvx2(x, y);
     } else if (cpu_features_.sse2) {

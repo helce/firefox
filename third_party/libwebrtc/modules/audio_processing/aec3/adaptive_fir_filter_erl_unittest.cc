@@ -20,7 +20,7 @@
 
 // Defines WEBRTC_ARCH_X86_FAMILY, used below.
 #include "rtc_base/system/arch.h"
-#if defined(WEBRTC_ARCH_X86_FAMILY)
+#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
 #include <emmintrin.h>
 #endif
 
@@ -51,7 +51,7 @@ TEST(AdaptiveFirFilter, UpdateErlNeonOptimization) {
 
 #endif
 
-#if defined(WEBRTC_ARCH_X86_FAMILY)
+#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
 // Verifies that the optimized method for echo return loss computation is
 // bitexact to the reference counterpart.
 TEST(AdaptiveFirFilter, UpdateErlSse2Optimization) {

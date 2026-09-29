@@ -109,7 +109,7 @@ class SincResampler {
                           const float* k1,
                           const float* k2,
                           double kernel_interpolation_factor);
-#if defined(WEBRTC_ARCH_X86_FAMILY)
+#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
   static float Convolve_SSE(const float* input_ptr,
                             const float* k1,
                             const float* k2,

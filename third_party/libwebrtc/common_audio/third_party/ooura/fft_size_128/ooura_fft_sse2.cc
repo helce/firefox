@@ -18,7 +18,7 @@
 
 namespace webrtc {
 
-#if defined(WEBRTC_ARCH_X86_FAMILY)
+#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
 
 void cft1st_128_SSE2(float* a) {
   const __m128 mm_swap_sign = _mm_load_ps(k_swap_sign);

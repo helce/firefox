@@ -81,7 +81,7 @@ TEST(VectorMath, Accumulate) {
 }
 #endif
 
-#if defined(WEBRTC_ARCH_X86_FAMILY)
+#if defined(WEBRTC_ARCH_X86_FAMILY) || defined(WEBRTC_ARCH_E2K)
 
 TEST(VectorMath, Sse2Sqrt) {
   if (cpu_info::Supports(cpu_info::ISA::kSSE2)) {
