@@ -588,6 +588,9 @@ def split_triplet(triplet, allow_wasi=False):
     elif cpu == "wasm32" and allow_wasi:
         canonical_cpu = "wasm32"
         endianness = "little"
+    elif cpu.startswith('e2k'):
+        canonical_cpu = 'e2k'
+        endianness = 'little'
     else:
         raise ValueError("Unknown CPU type: %s" % cpu)
 
@@ -810,6 +813,7 @@ def target_variables(target):
         OS_TARGET=str(os_target),
         OS_ARCH=str(os_arch),
         INTEL_ARCHITECTURE=target.cpu in ("x86", "x86_64") or None,
+        ELBRUS_ARCHITECTURE=target.cpu in ('e2k') or None, 
     )
 
 
@@ -817,6 +821,7 @@ set_config("OS_TARGET", target_variables.OS_TARGET)
 set_config("OS_ARCH", target_variables.OS_ARCH)
 obsolete_config("CPU_ARCH", replacement="TARGET_CPU")
 set_config("INTEL_ARCHITECTURE", target_variables.INTEL_ARCHITECTURE)
+set_config('ELBRUS_ARCHITECTURE', target_variables.ELBRUS_ARCHITECTURE)
 set_config("TARGET_CPU", target.cpu)
 set_config("TARGET_RAW_CPU", target.raw_cpu)
 set_config("TARGET_OS", target.os)

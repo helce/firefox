@@ -228,6 +228,13 @@ if CONFIG["OS_ARCH"] == "Linux" and CONFIG["TARGET_CPU"] == "loongarch64":
         "xptcstubs_loongarch64.cpp",
     ]
 
+if CONFIG["OS_ARCH"] == "Linux" and CONFIG["TARGET_CPU"] == "e2k":
+    SOURCES += [
+        "xptcinvoke_e2k_linux.cpp",
+        "xptcstubs_asm_e2k_linux.s",
+        "xptcstubs_e2k_linux.cpp",
+    ]
+
 FINAL_LIBRARY = "xul"
 
 LOCAL_INCLUDES += [

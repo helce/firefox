@@ -279,7 +279,7 @@ def rust_supported_targets(rustc):
 
 
 def detect_rustc_target(
-    host_or_target, compiler_info, arm_target, rust_supported_targets
+    host_or_target, compiler_info, arm_target, e2k_target, rust_supported_targets
 ):
     # Rust's --target options are similar to, but not exactly the same
     # as, the autoconf-derived targets we use.  An example would be that
@@ -384,6 +384,13 @@ def detect_rustc_target(
                     if c.target.vendor == vendor:
                         return c.rust_target
                 return matches[0].rust_target
+        # - For e2k targets, correlate with e2k_target
+        #   It can be either specific instruction set or specific processor
+        elif host_or_target.cpu == "e2k":
+            e2k_target_arch = e2k_target.mtune if e2k_target.mtune else "v" + e2k_target.iset
+            for c in candidates:
+                if c.rust_target.startswith("{}-".format("e2k" + e2k_target_arch)):
+                    return c.rust_target
 
         # See if we can narrow down on the exact alias.
         # We use the sub_configure_alias to keep support mingw32 triplets as input.
@@ -502,15 +509,16 @@ def assert_rust_compile(host_or_target, rustc_target, rustc):
     rustc_info.host,
     rust_supported_targets,
     arm_target,
+    e2k_target,
     when=rust_compiler,
 )
 @checking("for rust host triplet")
 @imports(_from="textwrap", _import="dedent")
 def rust_host_triple(
-    rustc, host, compiler_info, rustc_host, rust_supported_targets, arm_target
+    rustc, host, compiler_info, rustc_host, rust_supported_targets, arm_target, e2k_target
 ):
     rustc_target = detect_rustc_target(
-        host, compiler_info, arm_target, rust_supported_targets
+        host, compiler_info, arm_target, e2k_target, rust_supported_targets
     )
     if rustc_target != rustc_host:
         if host.alias == rustc_target:
@@ -538,14 +546,14 @@ def rust_host_triple(
 
 
 @depends(
-    rustc, target, c_compiler, rust_supported_targets, arm_target, when=rust_compiler
+    rustc, target, c_compiler, rust_supported_targets, arm_target, e2k_target, when=rust_compiler
 )
 @checking("for rust target triplet")
 def rust_target_triple(
-    rustc, target, compiler_info, rust_supported_targets, arm_target
+    rustc, target, compiler_info, rust_supported_targets, arm_target, e2k_target
 ):
     rustc_target = detect_rustc_target(
-        target, compiler_info, arm_target, rust_supported_targets
+        target, compiler_info, arm_target, e2k_target, rust_supported_targets
     )
     assert_rust_compile(target, rustc_target, rustc)
     return rustc_target

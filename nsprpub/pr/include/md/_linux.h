@@ -323,6 +323,15 @@ static inline PRInt32 _MD_ATOMIC_SET(PRInt32 *ptr, PRInt32 nv)
 #endif
 #endif /* __arm__ */
 
+#if defined(__e2k__)
+#define _PR_HAVE_ATOMIC_OPS
+#define _MD_INIT_ATOMIC()
+#define _MD_ATOMIC_INCREMENT(ptr) __sync_add_and_fetch(ptr, 1)
+#define _MD_ATOMIC_DECREMENT(ptr) __sync_sub_and_fetch(ptr, 1)
+#define _MD_ATOMIC_ADD(ptr, i) __sync_add_and_fetch(ptr, i)
+#define _MD_ATOMIC_SET(ptr, nv) __sync_lock_test_and_set(ptr, nv)
+#endif /* __e2k__ */
+
 #define USE_SETJMP
 #if (defined(__GLIBC__) && __GLIBC__ >= 2) || defined(ANDROID)
 #define _PR_POLL_AVAILABLE

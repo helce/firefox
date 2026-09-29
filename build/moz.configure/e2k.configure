@@ -1,0 +1,55 @@
+# -*- Mode: python; indent-tabs-mode: nil; tab-width: 40 -*-
+# vim: set filetype=python:
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+@depends(configure_cache, c_compiler)
+@checking('E2K mtune/instruction set', lambda x: x.mtune if x.mtune else "v" + x.iset)
+@imports(_from='textwrap', _import='dedent')
+def e2k_target(configure_cache, compiler):
+    # We're going to preprocess the following source to figure out some details
+    # about the e2k target options we have enabled.
+    source = dedent('''\
+        #if defined(__elbrus_2cplus__)
+        %mtune 2cplus
+        #elif defined(__elbrus_4c__)
+        %mtune 4c
+        #elif defined(__elbrus_1cplus__)
+        %mtune 1cplus
+        #elif defined(__elbrus_8c__)
+        %mtune 8c
+        #elif defined(__elbrus_8c2__)
+        %mtune 8c2
+        #elif defined(__elbrus_2c3__)
+        %mtune 2c3
+        #elif defined(__elbrus_12c__)
+        %mtune 12c
+        #elif defined(__elbrus_16c__)
+        %mtune 16c
+        #elif defined(__elbrus_48c__)
+        %mtune 48c
+        #elif defined(__elbrus_8v7__)
+        %mtune 8v7
+        #else
+        %iset __iset__
+        #endif
+    ''')
+    result = try_invoke_compiler(
+        configure_cache,
+        [compiler.compiler] + compiler.flags,
+        compiler.language,
+        source,
+        ['-E'],
+        wrapper=compiler.wrapper,
+    )
+
+    data = {"mtune": None, "iset": None}
+    for line in result.splitlines():
+        if line.startswith("%"):
+            k, _, v = line.partition(" ")
+            k = k.lstrip("%").lower()
+            data[k] = v
+            log.debug("%s = %s", k, data[k])
+
+    return namespace(**data)

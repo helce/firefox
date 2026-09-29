@@ -104,6 +104,7 @@ NSPR_API(PRInt32)   PR_AtomicAdd(PRInt32 *ptr, PRInt32 val);
            defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_4)) || \
            defined(__ia64__) || defined(__x86_64__) || \
            defined(__powerpc__) || \
+           defined(__e2k__) || \
            (defined(__arm__) && \
            defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_4)) || \
            defined(__aarch64__) || defined(__alpha) || \
